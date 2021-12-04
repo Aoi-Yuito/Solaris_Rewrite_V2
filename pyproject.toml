@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "Solaris-Bot"
+version = "0.1.0"
+description = "A Discord bot designed to make your server a safer and better place."
+
+license = "GPLv3"
+repository = "https://github.com/parafoxia/Solaris"
+readme = "README.md"
+
+authors = [
+    "Ethan Henderson <parafoxia@carberra.xyz>"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+hikari = {extras = ["speedups"], version = "^2.0.0-alpha.101"}
+hikari-lightbulb = "^1.2.0"
+python-dotenv = "^"
+aiohttp = "^3.7.4"
+hikari-tanjun = {git = "https://github.com/FasterSpeeding/Tanjun", rev = "task/components"}
+
+[tool.poetry.dev-dependencies]
+black = "^19.10b0"
+mypy = "^0.782"
+
+[tool.black]
+line-length = 119
+target-version = ["py38"]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
