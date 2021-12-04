@@ -158,7 +158,7 @@ class Bot(lightbulb.BotApp):
                 event.exc_info,
                 event.failed_event,
             )
-        except Exception:
+        except AttributeError:
             await error.error(
                 event.exception,
                 None, 
