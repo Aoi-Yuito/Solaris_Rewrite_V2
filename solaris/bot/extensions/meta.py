@@ -156,7 +156,7 @@ async def on_started(event: hikari.StartedEvent):
                 792606073860128769,
             )
         ]
-        meta.d.support_guild = await meta.bot.rest.fetch_guild(774530528623067157)
+        meta.d.support_guild = await meta.bot.cache.get_guild(774530528623067157)
         meta.d.helper_role = meta.bot.cache.get_role(786614866739068938)
         
         meta.bot.ready.up(meta)
@@ -520,15 +520,15 @@ async def h_command(ctx: lightbulb.context.base.Context):
     await ctx.respond(ctx.get_guild().id)
     l = [m for m in ctx.get_guild().get_members()]
     await ctx.respond(l)
-    await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id))
-    p = []
-    for m in ctx.get_guild().get_members():
-        p.append(ctx.bot.cache.get_presence(ctx.get_guild().id, m))
-    await ctx.respond(p)
-    r = []
-    for m in ctx.get_guild().get_members():
-        r.append(ctx.bot.cache.get_member(ctx.get_guild().id, m).get_top_role().position)
-    await ctx.respond(r)
+    await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities)
+    #p = []
+    #for m in ctx.get_guild().get_members():
+    #    p.append(ctx.bot.cache.get_presence(ctx.get_guild().id, m))
+    #await ctx.respond(p)
+    #r = []
+    #for m in ctx.get_guild().get_members():
+    #    r.append(ctx.bot.cache.get_member(ctx.get_guild().id, m).get_top_role().position)
+    #await ctx.respond(r)
 
 
 

@@ -225,18 +225,18 @@ class Bot(lightbulb.BotApp):
 
     async def grab_user(self, arg):
         try:
-            return await self.rest.fetch_user(arg)
+            return self.cache.get_member(arg) or self.cache.get_user(arg)
         except (ValueError, hikari.NotFoundError):
             return None
 
     async def grab_channel(self, arg):
         try:
-            return await self.rest.fetch_channel(arg)
+            return self.cache.get_guild_channel(arg)
         except (ValueError, hikari.NotFoundError):
             return None
 
     async def grab_guild(self, arg):
         try:
-            return await self.rest.fetch_guild(arg)
+            return self.cache.get_guild(arg)
         except (ValueError, hikari.NotFoundError):
             return None
