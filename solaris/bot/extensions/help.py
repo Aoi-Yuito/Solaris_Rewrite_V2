@@ -50,9 +50,9 @@ class ConfigHelpMenu(menu.NumberedSelectionMenu):
 
     async def start(bot_help):
         if (r := await super().start()) is not None:
-            await display_help(r)
+            await bot_help.display_help(r)
 
-    async def display_help(self, module):
+    async def display_help(bot_help, module):
         prefix = await bot_help.bot.prefix(bot_help.ctx.get_guild().id)
 
         await bot_help.message.remove_all_reactions()
@@ -62,9 +62,9 @@ class ConfigHelpMenu(menu.NumberedSelectionMenu):
                 header="Help",
                 title=f"Configuration help for {module}",
                 description=(
-                    list(filter(lambda c: c.name.lower() == module, bot_help.bot._extensions)).pop().__doc__
+                    list(filter(lambda c: bot_help.bot.get_plugin(c.title()).name.lower() == module, bot_help.bot._extensions)).pop().__doc__
                 ),
-                thumbnail=self.bot.get_me().avatar_url,
+                thumbnail=bot_help.bot.get_me().avatar_url,
                 fields=(
                     (
                         (doc := func.__doc__.split("\n", maxsplit=1))[0],
@@ -102,10 +102,8 @@ async def basic_syntax(ctx, cmd, prefix):
 
 
 def full_syntax(ctx, cmd, prefix):
-    print(cmd.aliases)
     invokations = "|".join([cmd.name, *cmd.aliases])
     if (p := cmd.parent) is None:
-        print(f"```{prefix}{invokations} {cmd.signature}```")
         return f"```{prefix}{invokations} {cmd.signature}```"
     else:
         p_invokations = "|".join([p.name, *p.aliases])
@@ -117,17 +115,15 @@ async def required_permissions(ctx, cmd):
         await cmd.evaluate_checks(ctx)
         return "Yes"
     except lightbulb.errors.MissingRequiredPermission as exc:
-        print(exc)
         mp = string.list_of([str(perm.replace("_", " ")).title() for perm in exc.missing_perms])
         return f"No - You are missing the {mp} permission(s)"
     except lightbulb.errors.BotMissingRequiredPermission as exc:
-        print(exc)
         mp = string.list_of([str(perm.replace("_", " ")).title() for perm in exc.missing_perms])
         return f"No - Solaris is missing the {mp} permission(s)"
     #except checks.AuthorCanNotConfigure:
     #    return "No - You are not able to configure Solaris"
-    #except commands.CommandError:
-    #    return "No - Solaris is not configured properly"
+    except lightbulb.errors.CommandInvocationError:
+        return "No - Solaris is not configured properly"
 
 
 async def get_command_mapping(bot_help, ctx):
@@ -148,6 +144,15 @@ async def get_command_mapping(bot_help, ctx):
                         mapping[extension].append(cmd)
 
     return mapping
+
+
+async def get_cooldown(ctx, cmd):
+    try:
+        await cmd.evaluate_cooldowns(ctx)
+        return "No"
+    except lightbulb.errors.CommandIsOnCooldown as exc:
+        return exc.retry_after
+
 
 async def convert(ctx, arg):
     try:
@@ -191,10 +196,9 @@ async def help_command(ctx: lightbulb.context.base.Context)-> None:
                         ("Syntax (<required> • [optional])", full_syntax(ctx, cmd, prefix), False),
                         (
                             "On cooldown?",
-                            "No",
-                            #f"Yes, for {chron.long_delta(dt.timedelta(seconds=s))}."
-                            #if (s := cmd.cooldown_manager)
-                            #else "No",
+                            f"Yes, for {chron.long_delta(dt.timedelta(seconds=s))}."
+                            if (s := (await get_cooldown(ctx, cmd)))
+                            else "No",
                             False,
                         ),
                         ("Can be run?", (await required_permissions(ctx, cmd)), False),

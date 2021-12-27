@@ -65,7 +65,7 @@ class Bot(lightbulb.BotApp):
         self.event_manager.subscribe(hikari.StartingEvent, self.on_starting)
         self.event_manager.subscribe(hikari.StartedEvent, self.on_started)
         self.event_manager.subscribe(hikari.StoppingEvent, self.on_stopping)
-        self.event_manager.subscribe(hikari.ExceptionEvent, self.on_error)
+        #self.event_manager.subscribe(hikari.ExceptionEvent, self.on_error)
         
         super().run(
             activity=hikari.Activity(
@@ -148,24 +148,24 @@ class Bot(lightbulb.BotApp):
         print(" Closing connection to Discord...")
 
 
-    async def on_error(self, event: hikari.ExceptionEvent) -> None:
-        from solaris.bot.extensions import error
-        try:
-            await error.error(
-                event.exception,
-                event.failed_event.message.guild_id, 
-                event.failed_event.message.channel_id,
-                event.exc_info,
-                event.failed_event,
-            )
-        except AttributeError:
-            await error.error(
-                event.exception,
-                None, 
-                None,
-                event.exc_info,
-                event.failed_event,
-            )
+    #async def on_error(self, event: hikari.ExceptionEvent) -> None:
+        #from solaris.bot.extensions import error
+        #try:
+        #    await error.error(
+        #        event.exception,
+        #        event.failed_event.message.guild_id, 
+        #        event.failed_event.message.channel_id,
+        #        event.exc_info,
+        #        event.failed_event,
+        #    )
+        #except AttributeError:
+        #    await error.error(
+        #        event.exception,
+        #        None, 
+        #        None,
+        #        event.exc_info,
+        #        event.failed_event,
+        #    )
 
 
     @property
@@ -175,6 +175,14 @@ class Bot(lightbulb.BotApp):
     @property
     def user_count(self):
         return len(self.cache.get_members_view())
+
+    @property
+    def command_count(self):
+        commands = []
+        for ext in self._extensions:
+            for cmd in self.get_plugin(ext.title()).all_commands:
+                commands.append(cmd)
+        return len(commands)
 
     @property
     def admin_invite(self):

@@ -21,6 +21,10 @@ import hikari
 import lightbulb
 from lightbulb import commands
 
+from contextlib import redirect_stdout
+from termcolor import cprint
+import io, textwrap, traceback, os
+
 
 sudo = lightbulb.plugins.Plugin(
     name="Sudo",

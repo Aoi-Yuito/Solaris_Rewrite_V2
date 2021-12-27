@@ -131,6 +131,7 @@ class NumericalSelector(Selector): #Exit emoji id 796315251360137276
     def set_selection(self):
         s = self._base_selection.copy()
         insert_point = 0
+        options = [830402728295137311, 830402747278819339, 830402761370632192, 830402774155919363, 830402790731153408, 830402804686127104, 830402828610568192, 830402844917760000, 830402860659245067]
 
         if len(self.pages) > 1:
             if self.page != 0:
@@ -143,7 +144,8 @@ class NumericalSelector(Selector): #Exit emoji id 796315251360137276
                 s.insert(insert_point, "830402902044442634") # PageNext emoji's ID 830402902044442634
 
         for i in range(len(self.pages[self.page])):
-            s.insert(i + insert_point, f"option{i + 1}")
+            s.insert(i + insert_point, options[i])
+            #s.insert(i + insert_point, f"option{i + 1}")
 
         self.selection = s
 

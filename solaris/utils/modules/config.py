@@ -65,7 +65,7 @@ async def system__logchannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.rest.fetch_member(
+        await ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
@@ -100,7 +100,7 @@ async def system__adminrole(ctx, channel, value):
     """The admin role
     The role used to denote which members can configure Solaris. Alongside server administrators, only members with this role can use any of Solaris' configuration commands. Upon selecting a new channel, Solaris will delete the one that was created during the first time setup should it still exist."""
 
-    bot_user = await ctx.bot.rest.fetch_member(ctx.get_guild().id, 841547626772168704)
+    bot_user = await ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
     perm = lightbulb.utils.permissions_for(bot_user)
     
     if not isinstance(value, hikari.Role):
@@ -138,7 +138,7 @@ async def gateway__ruleschannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.rest.fetch_member(
+        await ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
@@ -176,7 +176,7 @@ async def gateway__blockingrole(ctx, channel, value):
     """The blocking role
     The role that Solaris will give new members upon entering the server, and remove when they accept the server rules. This role should prohibit access to all but the rules channel, or all but a read-only category."""
 
-    bot_user = await ctx.bot.rest.fetch_member(ctx.get_guild().id, 841547626772168704)
+    bot_user = await ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
 
     if await retrieve.gateway__active(ctx.bot, channel.guild_id):
         await channel.send(f"{ctx.bot.cross} This can not be done as the gateway module is currently active.")
@@ -204,7 +204,7 @@ async def gateway__memberroles(ctx, channel, values):
     The role(s) that Solaris will give members upon accepting the server rules. This is optional, but could be useful if you want members to have specific roles when they join, for example for a levelling system, or to automatically opt them in to server announcements. You can set up to 3 member roles. The roles can be unset at any time by passing no arguments to the command below."""
     values = [values] if not isinstance(values, list) else values
 
-    bot_user = await ctx.bot.rest.fetch_member(ctx.get_guild().id, 841547626772168704)
+    bot_user = await ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
 
     if (br := await retrieve.gateway__blockingrole(ctx.bot, channel.guild_id)) is None:
         await channel.send(f"{ctx.bot.cross} You need to set the blocking role before you can set the member roles.")
@@ -283,7 +283,7 @@ async def gateway__welcomechannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.rest.fetch_member(
+        await ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
@@ -320,7 +320,7 @@ async def gateway__goodbyechannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.rest.fetch_member(
+        await ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
