@@ -161,6 +161,7 @@ async def on_started(event: hikari.StartedEvent):
         module.bot.ready.up(module)
 
     module.d.configurable: bool = True
+    module.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288033048203274/modules.png"
 
 
 @module.command()

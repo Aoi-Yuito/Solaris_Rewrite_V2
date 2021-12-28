@@ -156,12 +156,13 @@ async def on_started(event: hikari.StartedEvent):
                 792606073860128769,
             )
         ]
-        meta.d.support_guild = await meta.bot.cache.get_guild(774530528623067157)
+        meta.d.support_guild = meta.bot.cache.get_guild(774530528623067157)
         meta.d.helper_role = meta.bot.cache.get_role(786614866739068938)
         
         meta.bot.ready.up(meta)
 
     meta.d.configurable: bool = False
+    meta.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288082754908161/meta.png"
 
 
 @meta.command()
@@ -195,7 +196,7 @@ async def support_command(ctx: lightbulb.context.base.Context):
     online = []
     for m in meta.d.support_guild.get_members():
         try:
-            if not (await ctx.bot.grab_user(m)).is_bot:
+            if not (await ctx.bot.cache.get_member(meta.d.support_guild.id, m)).is_bot:
                 if ctx.bot.cache.get_presence(meta.d.support_guild.id, m).visible_status == hikari.Status.ONLINE:
                     online.append(m)
         except AttributeError:
@@ -203,7 +204,7 @@ async def support_command(ctx: lightbulb.context.base.Context):
         
     #online = [m for m in meta.d.support_guild.get_members() if not (await ctx.bot.grab_user(m)).is_bot and (ctx.bot.cache.get_presence(meta.d.support_guild.id, m)).visible_status == hikari.Status.ONLINE]
     helpers = [
-        m for m in meta.d.support_guild.get_members() if not (await ctx.bot.grab_user(m)).is_bot and (ctx.bot.cache.get_member(meta.d.support_guild.id, m)).get_top_role().position == meta.d.helper_role.position
+        m for m in meta.d.support_guild.get_members() if not (await ctx.bot.cache.get_member(meta.d.support_guild.id, m)).is_bot and (ctx.bot.cache.get_member(meta.d.support_guild.id, m)).get_top_role().position == meta.d.helper_role.position
     ]
     online_helpers = set(online) & set(helpers)
 

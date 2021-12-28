@@ -48,6 +48,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
         tag.bot.ready.up(tag)
 
     tag.d.configurable: bool = False
+    tag.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287868342083594/product-development.png"
 
 
 @tag.command()

@@ -91,6 +91,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
         bot_help.bot.ready.up(bot_help)
 
     bot_help.d.configurable: bool = False
+    bot_help.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288131811504158/help.png"
 
 
 async def basic_syntax(ctx, cmd, prefix):

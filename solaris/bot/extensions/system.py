@@ -35,6 +35,7 @@ async def on_started(event: hikari.StartedEvent):
         system.bot.ready.up(system)
 
     system.d.configurable: bool = True
+    system.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287945454362684/settings.png"
 
 
 @system.command()
@@ -43,7 +44,6 @@ async def on_started(event: hikari.StartedEvent):
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
 async def prefix_command(ctx: lightbulb.context.base.Context) -> None:
     prefix = await ctx.bot.prefix(ctx.get_guild().id)
-    await ctx.send("sdf")
     await ctx.respond(
         f"{ctx.bot.info} Solaris's prefix in this server is {prefix}. To change it, use `{prefix}config system prefix <new prefix>`."
     )

@@ -225,7 +225,7 @@ class Bot(lightbulb.BotApp):
 
     async def grab_user(self, arg):
         try:
-            return self.cache.get_member(arg) or self.cache.get_user(arg)
+            return self.cache.get_user(arg)
         except (ValueError, hikari.NotFoundError):
             return None
 
