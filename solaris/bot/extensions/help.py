@@ -132,9 +132,9 @@ async def get_command_mapping(bot_help, ctx):
     plugins = []
 
     for extension in bot_help.bot._extensions:
-        if (bot_help.bot.get_plugin(extension.title()).description) is not None:
+        if (bot_help.bot.get_plugin(extension.title()).d.image) is not None:
             for cmd in bot_help.bot.get_plugin(extension.title()).all_commands:
-                if (bot_help.bot.get_plugin(extension.title()).description) is not None:
+                if (bot_help.bot.get_plugin(extension.title()).d.image) is not None:
                     try:
                         for i in cmd.subcommands.values():
                             break
@@ -173,7 +173,7 @@ async def convert(ctx, arg):
 
 @bot_help.command()
 @lightbulb.add_checks(lightbulb.guild_only)
-@lightbulb.option(name="cmd", description="Name of the tag to fetch.", type=str, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST, required=False)
+@lightbulb.option(name="cmd", description="Name of the command to view.", type=str, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST, required=False)
 @lightbulb.command(name="help", description="Help with anything Solaris. Passing a command name through will show help with that specific command")
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
 async def help_command(ctx: lightbulb.context.base.Context)-> None:
@@ -221,7 +221,8 @@ async def help_command(ctx: lightbulb.context.base.Context)-> None:
                     "header": "Help",
                     "title": f"The `{ctx.bot.get_plugin(extension.title()).name}` module",
                     "description": f"{ctx.bot.get_plugin(extension.title()).description}\n\nUse `{prefix}help [command]` for more detailed help on a command. You can not run commands with `(✗)` next to them.",
-                    "thumbnail": ctx.bot.get_me().avatar_url,
+                    #"thumbnail": ctx.bot.get_me().avatar_url,
+                    "thumbnail": ctx.bot.get_plugin(extension.title()).d.image,
                     "fields": (
                             (
                             f"{len(cmds)} command(s)",

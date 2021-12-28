@@ -21,6 +21,7 @@ import hikari
 import lightbulb
 from lightbulb import commands
 
+import math
 import psutil
 import datetime as dt
 import typing as t
@@ -40,6 +41,10 @@ from solaris.utils import (
     string,
 )
 from solaris.utils.modules import deactivate
+
+
+def get_emoji_limit(arg):
+    return int(((1+(sqrt_5:=math.sqrt(5)))**(n:=arg+2)-(1-sqrt_5)**n)/(2**n*sqrt_5)*50)
 
 
 class DetailedServerInfoMenu(menu.MultiPageMenu):
@@ -106,7 +111,7 @@ class LeavingMenu(menu.SelectionMenu):
         await deactivate.everything(meta.ctx)
 
         perm = lightbulb.utils.permissions_for(
-            await ctx.bot.cache.get_member(
+            ctx.bot.cache.get_member(
                 ctx.get_guild().id,
                 841547626772168704
             )
@@ -470,6 +475,71 @@ async def userinfo_command(ctx: lightbulb.context.base.Context):
 
     else:
         await ctx.respond(f"{ctx.bot.cross} Solaris was unable to identify a user with the information provided.")
+
+
+@meta.command()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.command(name="serverinfo", aliases=["si", "guildinfo", "gi"], description="Displays information on your server.")
+@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+async def serverinfo_command(ctx: lightbulb.context.base.Context):
+    guild = ctx.get_guild()
+    guild_owner = ctx.bot.cache.get_member(guild.id, guild.owner_id)
+    
+    perm = lightbulb.utils.permissions_for(
+        ctx.bot.cache.get_member(
+            guild.id,
+            841547626772168704
+        )
+    )
+    
+    bot_count = len([m for m in guild.get_members() if ctx.bot.cache.get_member(guild.id, m).is_bot])
+    human_count = guild.member_count - bot_count
+
+    await ctx.respond(
+        embed=ctx.bot.embed.build(
+            ctx=ctx,
+            header="Information",
+            title=f"Server information for {guild.name}",
+            thumbnail=guild.icon_url,
+            colour=guild_owner.get_top_role().colour,
+            fields=(
+                ("ID", guild.id, False),
+                ("Owner", guild_owner.mention, True),
+                ("Region", guild.preferred_locale, True),
+                ("Top role", ctx.bot.cache.get_role([r for r in guild.get_roles()][1]).mention, True),
+                ("Members", f"{guild.member_count:,}", True),
+                ("Humans / bots", f"{human_count:,} / {bot_count:,}", True),
+                (
+                    "Bans",
+                    f"{len(await ctx.bot.rest.fetch_bans(guild.id)):,}" if perm.BAN_MEMBERS else "-",
+                    True,
+                ),
+                ("Roles", f"{len([r for r in guild.get_roles()])-1:,}", True),
+                ("Text channels", f"{len(guild.get_channels()):,}", True),
+                ("Voice channels", f"{len(guild.get_voice_states()):,}", True),
+                (
+                    "Invites",
+                    f"{len(await ctx.bot.rest.fetch_guild_invites(guild.id)):,}" if perm.MANAGE_GUILD else "-",
+                    True,
+                ),
+                ("Emojis", f"{len(guild.get_emojis()):,} / {get_emoji_limit(guild.premium_tier.value)*2:,}", True),
+                ("Boosts", f"{guild.premium_subscription_count:,} (level {guild.premium_tier.value})", True),
+                #("Newest member", max(guild.get_members(), key=lambda m: ctx.bot.cache.get_member(guild.id, m).joined_at).mention, True),
+                ("Created on", chron.long_date(guild.created_at), True),
+                #("Existed for", chron.short_delta(dt.datetime.utcnow() - guild.created_at), True),
+                #(
+                #    "Statuses",
+                #    (
+                #        f"🟢 {len([m for m in guild.get_members() if ctx.bot.cache.get_presence(guild.id, m).visible_status == hikari.Status.ONLINE]):,} "
+                #        f"🟠 {len([m for m in guild.get_members() if ctx.bot.cache.get_presence(guild.id, m).visible_status == hikari.Status.IDLE]):,} "
+                #        f"🔴 {len([m for m in guild.get_members() if ctx.bot.cache.get_presence(guild.id, m).visible_status == hikari.Status.DND]):,} "
+                #        f"⚪ {len([m for m in guild.get_members() if ctx.bot.cache.get_presence(guild.id, m).visible_status == hikari.Status.OFFLINE]):,}"
+                #    ),
+                #    False,
+                #),
+            ),
+        )
+    )
 
 
 @meta.command()

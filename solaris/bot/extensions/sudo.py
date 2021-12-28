@@ -51,7 +51,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
         sudo.bot.ready.up(sudo)
 
     sudo.d.configurable: bool = False
-    sudo.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287996423557120/operative-system.png"
+    sudo.d.image = None
 
 
 @sudo.command()
@@ -145,8 +145,23 @@ async def eval_command(ctx: lightbulb.context.base.Context) -> None:
 
     try:
         exec(to_compile, env)
+
     except Exception as e:
-        return await ctx.respond(f'```py\n{e.__class__.__name__}: {e}\n``')
+        
+        embed = hikari.Embed(
+            title="Compilation Results",
+            description=f"**Program Output**\n```py\n{e.__class__.__name__}: {e}\n```",
+            colour=DEFAULT_EMBED_COLOUR,
+            timestamp=datetime.now().astimezone()
+        )
+        embed.set_thumbnail(
+            "https://cdn.discordapp.com/attachments/803218459160608777/925273699953815572/kisspng-professional-python-programmer-computer-programmin-python-logo-download-5b47725c1cc0d6.3474912915314089881178-removebg-preview.png"
+        )
+        embed.set_footer(
+            text=f"Invoked by {ctx.author.username}",
+            icon=ctx.author.avatar_url
+        )
+        return await ctx.respond(embed=embed)
 
     foo = env['foo']
     try:

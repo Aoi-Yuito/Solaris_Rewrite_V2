@@ -42,6 +42,7 @@ async def on_started(event: hikari.StartedEvent):
         system_err.bot.ready.up(system_err)
 
     system_err.d.configurable: bool = False
+    system_err.d.image = None
 
     
 async def error(err, guild_id, channel_id, exc_info, *args):

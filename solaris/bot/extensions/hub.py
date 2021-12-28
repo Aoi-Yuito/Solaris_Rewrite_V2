@@ -36,6 +36,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
         hub.bot.ready.up(hub)
 
     hub.d.configurable: bool = False
+    hub.d.image = None
 
     hub.d.guild = await hub.bot.rest.fetch_guild(Config.HUB_GUILD_ID)
 
