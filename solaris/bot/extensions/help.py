@@ -135,14 +135,15 @@ async def get_command_mapping(bot_help, ctx):
         if (bot_help.bot.get_plugin(extension.title()).d.image) is not None:
             for cmd in bot_help.bot.get_plugin(extension.title()).all_commands:
                 if (bot_help.bot.get_plugin(extension.title()).d.image) is not None:
-                    try:
-                        for i in cmd.subcommands.values():
-                            break
-                        mapping[extension].append(cmd)
-                        for c in cmd.subcommands.values():
-                            mapping[extension].append(c)
-                    except AttributeError:
-                        mapping[extension].append(cmd)
+                    if isinstance(cmd, lightbulb.commands.prefix.PrefixCommand) or isinstance(cmd, lightbulb.commands.prefix.PrefixCommandGroup):
+                        try:
+                            for i in cmd.subcommands.values():
+                                break
+                            mapping[extension].append(cmd)
+                            for c in cmd.subcommands.values():
+                                mapping[extension].append(c)
+                        except AttributeError:
+                            mapping[extension].append(cmd)
 
     return mapping
 
@@ -198,7 +199,7 @@ async def help_command(ctx: lightbulb.context.base.Context)-> None:
                         (
                             "On cooldown?",
                             f"Yes, for {chron.long_delta(dt.timedelta(seconds=s))}."
-                            if (s := (await get_cooldown(ctx, cmd)))
+                            if (s := (await get_cooldown(ctx, cmd))) != "No"
                             else "No",
                             False,
                         ),
@@ -237,7 +238,7 @@ async def help_command(ctx: lightbulb.context.base.Context)-> None:
 
         await HelpMenu(ctx, pagemaps).start()
 
-            
+
 
 
 def load(bot) -> None:

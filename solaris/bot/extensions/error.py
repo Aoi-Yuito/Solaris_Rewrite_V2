@@ -23,10 +23,13 @@ from lightbulb import commands
 
 import aiofiles
 import aiofiles.os
+import datetime as dt
 
+import asyncio
 import traceback
 
 from solaris.utils import checks
+from solaris.utils import chron, string
 
 
 system_err = lightbulb.plugins.Plugin(
@@ -44,7 +47,102 @@ async def on_started(event: hikari.StartedEvent):
     system_err.d.configurable: bool = False
     system_err.d.image = None
 
-    
+
+@system_err.listener(lightbulb.events.CommandErrorEvent)
+async def on_command_error(event: lightbulb.events.CommandErrorEvent):
+    prefix = await event.context.bot.prefix(event.context.guild_id)
+    if isinstance(event.exception, lightbulb.errors.CommandNotFound):
+        pass
+
+    elif hasattr(event.exception, "msg"):
+        await event.context.respond(f"{event.content.bot.cross} {event.exception.msg}")
+
+    elif isinstance(event.exception, lightbulb.errors.NotEnoughArguments):
+        await event.context.respond(
+            f"{event.context.bot.cross} No `{event.exception.missing_options[0].name}` argument was passed, despite being required. Use `{prefix}help {event.context.command.name}` for more information."
+        )
+
+    elif isinstance(event.exception, lightbulb.errors.MissingRequiredPermission):
+        mp = string.list_of([str(perm.replace("_", " ")).title() for perm in event.exception.missing_perms], sep="or")
+        await event.context.respond(
+            f"{events.context.bot.cross} You do not have the {mp} permission(s), which are required to use this command."
+        )
+
+    elif isinstance(event.exception, lightbulb.errors.BotMissingRequiredPermission):
+        try:
+            mp = string.list_of([str(perm.replace("_", " ")).title() for perm in event.exception.missing_perms], sep="or")
+            await event.context.respond(
+                f"{event.context.bot.cross} Solaris does not have the {mp} permission(s), which are required to use this command."
+            )
+        except hikari.ForbiddenError:
+            # If Solaris does not have the Send Messages permission
+            # (might redirect this to log channel once it's set up).
+            pass
+
+    #elif isinstance(event.exception, lightbulb.errors.NotOwner): #this event isn't triggering when lightbulb.errors.CheckFailure event is on...
+        #await event.context.respond(f"{event.context.bot.cross} That command can only be used by Solaris' owner.")
+
+    elif isinstance(event.exception, lightbulb.errors.CommandIsOnCooldown):
+        if "lightbulb.cooldowns.UserBucket" in str(event.context.command.cooldown_manager.cooldowns.get(event.context.author.id)):
+            msg = await event.context.respond(
+                f"{event.context.bot.cross} You can not use that command for another {chron.long_delta(dt.timedelta(seconds=event.exception.retry_after))}."
+            )
+            await asyncio.sleep(5)
+            await msg.delete()
+        
+        elif "lightbulb.cooldowns.GuildBucket" in str(event.context.command.cooldown_manager.cooldowns.get(event.context.guild_id)):
+            msg = await event.context.respond(
+                f"{event.context.bot.cross} That command can not be used in this server for another {chron.long_delta(dt.timedelta(seconds=event.exception.retry_after))}."
+            )
+            await asyncio.sleep(5)
+            await msg.delete()
+            
+        elif "lightbulb.cooldowns.ChannelBucket" in str(event.context.command.cooldown_manager.cooldowns.get(event.context.channel_id)):
+            msg = await event.context.respond(
+                f"{event.context.bot.cross} That command can not be used in this channel for another {chron.long_delta(dt.timedelta(seconds=event.exception.retry_after))}."
+            )
+            await asyncio.sleep(5)
+            await msg.delete()
+            
+        elif "lightbulb.cooldowns.MemberBucket" in str(event.context.command.cooldown_manager.cooldowns.get(event.context.author.id)):
+            msg = await event.context.respond(
+                f"{event.context.bot.cross} You can not use that command in this server for another {chron.long_delta(dt.timedelta(seconds=event.exception.retry_after))}."
+            )
+            await asyncio.sleep(5)
+            await msg.delete()
+            
+        elif "lightbulb.cooldowns.CategoryBucket" in str(event.context.command.cooldown_manager.cooldowns.get(event.context.get_channel().parent_id)):
+            msg = await event.context.respond(
+                f"{event.context.bot.cross} That command can not be used in this category for another {chron.long_delta(dt.timedelta(seconds=event.exception.retry_after))}."
+            )
+            await asyncio.sleep(5)
+            await msg.delete()
+
+    elif isinstance(event.exception, lightbulb.errors.CheckFailure):
+        if str(event.exc_info[0]) == "<class 'lightbulb.errors.OnlyInGuild'>":
+            await event.context.respond(f"{event.context.bot.cross} Solaris does not support command invokations in DMs.")
+        elif str(event.exc_info[0]) == "<class 'lightbulb.errors.NotOwner'>":
+            await event.context.respond(f"{event.context.bot.cross} That command can only be used by Solaris' owner.")
+        else:
+            await event.context.respond(
+                f"{event.context.bot.cross} There was an unhandled command check error (probably missing privileges). Use `{prefix}help {event.context.command.name}` for more information."
+            )
+
+    #elif isinstance(event.exception, lightbulb.errors.OnlyInGuild): #this event isn't triggering when lightbulb.errors.CheckFailure event is on...
+    #    await event.context.respond(f"{event.context.bot.cross} Solaris does not support command invokations in DMs.")
+
+    elif (original := getattr(event.exception, "original", None)) is not None:
+        if isinstance(original, hikari.HTTPResponseError):
+            await event.context.respond(
+                f"{event.context.bot.cross} A HTTP exception occurred ({original.status})\n```{original.message}```"
+            )
+        else:
+            raise original
+
+    else:
+        raise event.exception
+
+
 async def error(err, guild_id, channel_id, exc_info, *args):
     ref = await record_error(err, args, exc_info)
     hub = system_err.bot.get_plugin("Hub")
@@ -79,7 +177,7 @@ async def record_error(err, obj,  exc_info):
 
     ref = system_err.bot.generate_id()
     traceback_info = "".join(traceback.format_exception(*exc_info))
-    
+
     await system_err.bot.db.execute(
         "INSERT INTO errors (Ref, Cause, Traceback) VALUES (?, ?, ?)", ref, cause, str(traceback_info)
     )
