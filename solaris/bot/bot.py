@@ -149,23 +149,23 @@ class Bot(lightbulb.BotApp):
 
 
     #async def on_error(self, event: hikari.ExceptionEvent) -> None:
-        #from solaris.bot.extensions import error
-        #try:
-        #    await error.error(
-        #        event.exception,
-        #        event.failed_event.message.guild_id, 
-        #        event.failed_event.message.channel_id,
-        #        event.exc_info,
-        #        event.failed_event,
-        #    )
-        #except AttributeError:
-        #    await error.error(
-        #        event.exception,
-        #        None, 
-        #        None,
-        #        event.exc_info,
-        #        event.failed_event,
-        #    )
+    #    from solaris.bot.extensions import error
+    #    try:
+    #        await error.error(
+    #            event.exception,
+    #            event.failed_event.message.guild_id, 
+    #            event.failed_event.message.channel_id,
+    #            event.exc_info,
+    #            event.failed_event,
+    #        )
+    #    except AttributeError:
+    #        await error.error(
+    #            event.exception,
+    #            None, 
+    #            None,
+    #            event.exc_info,
+    #            event.failed_event,
+    #        )
 
 
     @property

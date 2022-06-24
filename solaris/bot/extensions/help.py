@@ -62,7 +62,7 @@ class ConfigHelpMenu(menu.NumberedSelectionMenu):
                 header="Help",
                 title=f"Configuration help for {module}",
                 description=(
-                    list(filter(lambda c: bot_help.bot.get_plugin(c.title()).name.lower() == module, bot_help.bot._extensions)).pop().__doc__
+                    bot_help.bot.get_plugin(list(filter(lambda c: bot_help.bot.get_plugin(c.title()).name.lower() == module, bot_help.bot._extensions)).pop().title()).description
                 ),
                 thumbnail=bot_help.bot.get_me().avatar_url,
                 fields=(
@@ -80,7 +80,7 @@ class ConfigHelpMenu(menu.NumberedSelectionMenu):
 
 bot_help = lightbulb.plugins.Plugin(
     name="Help",
-    description="Assistance with using a configuring Solaris.",
+    description="Assistance with using and configuring Solaris.",
     include_datastore=True
 )
 
@@ -105,10 +105,10 @@ async def basic_syntax(ctx, cmd, prefix):
 def full_syntax(ctx, cmd, prefix):
     invokations = "|".join([cmd.name, *cmd.aliases])
     if (p := cmd.parent) is None:
-        return f"```{prefix}{invokations} {cmd.signature}```"
+        return f"```{prefix}{invokations} {cmd.signature.replace(cmd.name, '')}```"
     else:
         p_invokations = "|".join([p.name, *p.aliases])
-        return f"```{prefix}{p_invokations} {invokations} {cmd.signature}```"
+        return f"```{prefix}{p_invokations} {invokations} {cmd.signature.replace(f'{p.name} {cmd.name}', '')}```"
 
 
 async def required_permissions(ctx, cmd):
@@ -116,13 +116,13 @@ async def required_permissions(ctx, cmd):
         await cmd.evaluate_checks(ctx)
         return "Yes"
     except lightbulb.errors.MissingRequiredPermission as exc:
-        mp = string.list_of([str(perm.replace("_", " ")).title() for perm in exc.missing_perms])
+        mp = string.list_of([str(str(perm).replace("_", " ")).title() for perm in exc.missing_perms])
         return f"No - You are missing the {mp} permission(s)"
     except lightbulb.errors.BotMissingRequiredPermission as exc:
-        mp = string.list_of([str(perm.replace("_", " ")).title() for perm in exc.missing_perms])
+        mp = string.list_of([str(str(perm).replace("_", " ")).title() for perm in exc.missing_perms])
         return f"No - Solaris is missing the {mp} permission(s)"
-    #except checks.AuthorCanNotConfigure:
-    #    return "No - You are not able to configure Solaris"
+    except checks.AuthorCanNotConfigure:
+        return "No - You are not able to configure Solaris"
     except lightbulb.errors.CommandInvocationError:
         return "No - Solaris is not configured properly"
 

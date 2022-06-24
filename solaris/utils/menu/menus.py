@@ -119,16 +119,16 @@ class NumberedSelectionMenu(Menu):
         self.selector = selectors.NumericalSelector(self, iterable, timeout=timeout, auto_exit=auto_exit, check=check)
 
     @property
-    def page_field(self):
-        return (f"{self.selector.page_info}", f"{self.selector.table}", False)
+    async def page_field(self):
+        return (f"{self.selector.page_info}", f"{await self.selector.table}", False)
 
     async def start(self):
-        self.pagemap.update({"fields": (self.page_field,)})
+        self.pagemap.update({"fields": (await self.page_field,)})
         await super().start()
         return await self.selector.response()
 
     async def switch(self, emoji_name, emoji_id):
-        self.pagemap.update({"fields": (self.page_field,)})
+        self.pagemap.update({"fields": (await self.page_field,)})
         await super().switch()
         await self.message.remove_reaction(emoji=emoji_name, emoji_id=emoji_id, user=self.ctx.author)
 

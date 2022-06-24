@@ -56,7 +56,6 @@ async def on_started(event: hikari.StartedEvent) -> None:
 
 @sudo.command()
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="extension", description="Name of the ext to load.", type=str)
 @lightbulb.command(name="load", aliases=["lext"], description=None, hidden=True)
 @lightbulb.implements(commands.prefix.PrefixCommand)
@@ -71,7 +70,6 @@ async def load_extension(ctx: lightbulb.context.base.Context) -> None:
 
 @sudo.command()
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="extension", description="Name of the ext to unload.", type=str)
 @lightbulb.command(name="unload", aliases=["ulext"], description=None, hidden=True)
 @lightbulb.implements(commands.prefix.PrefixCommand)
@@ -86,7 +84,6 @@ async def unload_extension(ctx: lightbulb.context.base.Context) -> None:
 
 @sudo.command()
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="extension", description="Name of the ext to reload.", type=str)
 @lightbulb.command(name="reload", aliases=["rlext"], description=None, hidden=True)
 @lightbulb.implements(commands.prefix.PrefixCommand)
@@ -101,7 +98,6 @@ async def reload_extension(ctx: lightbulb.context.base.Context) -> None:
 
 @sudo.command()
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="bot_restart", aliases=["rst"], description=None, hidden=True)
 @lightbulb.implements(commands.prefix.PrefixCommand)
 async def bot_restart_command(ctx: lightbulb.context.base.Context) -> None:
@@ -111,7 +107,6 @@ async def bot_restart_command(ctx: lightbulb.context.base.Context) -> None:
 
 @sudo.command()
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="shutdown", aliases=["sd"], description=None, hidden=True)
 @lightbulb.implements(commands.prefix.PrefixCommand)
 async def shutdown_command(ctx: lightbulb.context.base.Context) -> None:
@@ -120,7 +115,6 @@ async def shutdown_command(ctx: lightbulb.context.base.Context) -> None:
 
 @sudo.command()
 @lightbulb.add_checks(lightbulb.owner_only)
-@lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="code", description="The Code to execute.", type=str, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.command(name="eval", aliases=["ev"], description=None, hidden=True)
 @lightbulb.implements(commands.prefix.PrefixCommand)

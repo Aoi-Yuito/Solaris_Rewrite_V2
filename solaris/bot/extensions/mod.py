@@ -174,7 +174,7 @@ async def clearchannel_command(ctx: lightbulb.context.base.Context):
             await ctx.get_guild().create_text_channel(
                 name=target.name,
                 topic=target.topic,
-                nsfw=True if target.is_nsfw is not None else False,
+                nsfw=target.is_nsfw,
                 rate_limit_per_user=target.rate_limit_per_user,
                 #permission_overwrites=target.permission_overwrites,
                 category=target.parent_id,
@@ -185,7 +185,7 @@ async def clearchannel_command(ctx: lightbulb.context.base.Context):
             await ctx.get_guild().create_news_channel(
                 name=target.name,
                 topic=target.topic,
-                nsfw=True if target.is_nsfw is not None else False,
+                nsfw=target.is_nsfw,
                 rate_limit_per_user=target.rate_limit_per_user,
                 #permission_overwrites=target.permission_overwrites,
                 category=target.parent_id,
@@ -194,18 +194,6 @@ async def clearchannel_command(ctx: lightbulb.context.base.Context):
 
         elif isinstance(target, hikari.GuildVoiceChannel):
             await ctx.get_guild().create_voice_channel(
-                name=target.name,
-                user_limit=target.user_limit,
-                bitrate=target.bitrate,
-                video_quality_mode=target.video_quality_mode,
-                #permission_overwrites=target.permission_overwrites,
-                region=target.region,
-                category=target.parent_id,
-                reason=f"{reason} - Actioned by {ctx.author.username}"
-            )
-
-        elif isinstance(target, hikari.GuildStageChannel):
-            await ctx.get_guild().create_stage_channel(
                 name=target.name,
                 user_limit=target.user_limit,
                 bitrate=target.bitrate,
@@ -295,7 +283,7 @@ async def clearnickname_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_NICKNAMES))
 @lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES, hikari.Permissions.MANAGE_NICKNAMES))
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(3600, 1))
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(3600, 1))
 @lightbulb.option(name="strict", description="Whether to change it strictly or not", type=bool, default=False, required=False)
 @lightbulb.command(name="unhoistnicknames", description="Unhoists the nicknames of all members.")
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
@@ -353,7 +341,7 @@ async def delete_group(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_CHANNELS))
 @lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES, hikari.Permissions.MANAGE_CHANNELS))
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(300, 1))
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
 #@lightbulb.option(name="reason", description="Reason for the delete action", type=str, default="No reason provided.", required=False, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="target", description="The channel to delete", type=hikari.GuildChannel, required=True)
 @lightbulb.command(name="channel", description="Deletes the specified channel.")
@@ -365,7 +353,7 @@ async def delete_channel_command(ctx: lightbulb.context.base.Context):
 
     async with ctx.get_channel().trigger_typing():
         await target.delete()
-        #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}") #ahh... there is no reason kwarg for it...
+        #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}")
 
         if not ctx_is_target:
             await ctx.respond(f"{ctx.bot.tick} Channel deleted.")
@@ -375,7 +363,7 @@ async def delete_channel_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.ADMINISTRATOR))
 @lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES, hikari.Permissions.MANAGE_CHANNELS))
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(300, 1))
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
 #@lightbulb.option(name="reason", description="Reason for the delete channels action", type=str, default="No reason provided.", required=False, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="targets", description="The channels to delete", type=hikari.GuildChannel, required=True, modifier=lightbulb.commands.base.OptionModifier.GREEDY)
 @lightbulb.command(name="channels", description="Deletes one or more channels.")
@@ -393,7 +381,7 @@ async def delete_channels_command(ctx: lightbulb.context.base.Context):
         async with ctx.get_channel().trigger_typing():
             for target in targets:
                 await target.delete()
-                #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}") #ahh... there is no reason kwarg for it...
+                #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}")
                 count += 1
 
         if not ctx_in_targets:
@@ -404,7 +392,7 @@ async def delete_channels_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.ADMINISTRATOR))
 @lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES, hikari.Permissions.MANAGE_CHANNELS))
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(300, 1))
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
 #@lightbulb.option(name="reason", description="Reason for the delete category action", type=str, default="No reason provided.", required=False, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="target", description="The category to delete", type=hikari.GuildCategory, required=True)
 @lightbulb.command(name="category", description="Deletes the specified category along with all channels within it.")
@@ -420,9 +408,9 @@ async def delete_category_command(ctx: lightbulb.context.base.Context):
         for tc in all_channels:
             if ctx.bot.cache.get_guild_channel(tc).parent_id == target.id:
                 await ctx.bot.cache.get_guild_channel(tc).delete()
-            #await ctx.bot.cache.get_guild_channel(tc).delete(reason=f"{reason} - Actioned by {ctx.author.username}") #ahh... there is no reason kwarg for it...
-        await target.delete()
-        #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}") #ahh... there is no reason kwarg for it...
+            #await ctx.bot.cache.get_guild_channel(tc).delete(reason=f"{reason} - Actioned by {ctx.author.username}")
+                await target.delete()
+        #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}")
 
         if not ctx_in_targets:
             await ctx.respond(f"{ctx.bot.tick} Category deleted.")
@@ -432,7 +420,7 @@ async def delete_category_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.MANAGE_ROLES))
 @lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES, hikari.Permissions.MANAGE_ROLES))
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(300, 1))
+@lightbulb.add_cooldown(300, 1, lightbulb.buckets.GuildBucket)
 #@lightbulb.option(name="reason", description="Reason for the delete role action", type=str, default="No reason provided.", required=False, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="target", description="The role to delete", type=hikari.Role, required=True)
 @lightbulb.command(name="role", description="Deletes the specified role.")
@@ -443,7 +431,7 @@ async def delete_role_command(ctx: lightbulb.context.base.Context):
 
     async with ctx.get_channel().trigger_typing():
         await ctx.bot.rest.delete_role(ctx.guild_id, target.id)
-        #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}") #ahh... there is no reason kwarg for it...
+        #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}")
 
         await ctx.respond(f"{ctx.bot.tick} Role deleted.")
 
@@ -452,7 +440,7 @@ async def delete_role_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.ADMINISTRATOR))
 @lightbulb.add_checks(lightbulb.bot_has_guild_permissions(hikari.Permissions.SEND_MESSAGES, hikari.Permissions.MANAGE_ROLES))
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(300, 1))
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
 #@lightbulb.option(name="reason", description="Reason for the delete roles action", type=str, default="No reason provided.", required=False, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="targets", description="The roles to delete", type=hikari.Role, required=True, modifier=lightbulb.commands.base.OptionModifier.GREEDY)
 @lightbulb.command(name="roles", description="Deletes one or more roles.")
@@ -469,7 +457,7 @@ async def delete_roles_command(ctx: lightbulb.context.base.Context):
         async with ctx.get_channel().trigger_typing():
             for target in targets:
                 await ctx.bot.rest.delete_role(ctx.guild_id, target.id)
-                #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}") #ahh... there is no reason kwarg for it...
+                #await target.delete(reason=f"{reason} - Actioned by {ctx.author.username}")
                 count += 1
 
         await ctx.respond(f"{ctx.bot.tick} {count:,} role(s) were deleted.")

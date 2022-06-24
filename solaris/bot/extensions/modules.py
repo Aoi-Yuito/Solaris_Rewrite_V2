@@ -144,7 +144,7 @@ class SetupMenu(menu.SelectionMenu):
             "description": "Congratulations - the first time setup has been completed! You can now use all of Solaris' commands, and activate all of Solaris' modules.\n\nEnjoy using Solaris!",
             "thumbnail": SUCCESS_ICON,
         }
-        await modules.config.system__runfts(module.ctx, module.ctx.get_channel(), 1)
+        await modules.config._system__runfts(module.ctx, module.ctx.get_channel(), 1)
         await module.switch(pagemap, remove_all_reactions=True)
 
 
@@ -160,15 +160,15 @@ async def on_started(event: hikari.StartedEvent):
     if not module.bot.ready.booted:
         module.bot.ready.up(module)
 
-    module.d.configurable: bool = True
+    module.d.configurable: bool = False
     module.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288033048203274/modules.png"
 
 
 @module.command()
 @lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.add_checks(checks.first_time_setup_has_not_run())
 @lightbulb.command(name="setup", description="Runs the first time setup.")
 #@checks.bot_has_booted()
-#@checks.first_time_setup_has_not_run()
 #@checks.author_can_configure()
 #@checks.guild_is_not_discord_bot_list()
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)

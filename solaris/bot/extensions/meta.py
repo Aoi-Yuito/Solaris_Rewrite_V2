@@ -46,7 +46,6 @@ from solaris.utils.modules import deactivate
 def get_emoji_limit(arg):
     return int(((1+(sqrt_5:=math.sqrt(5)))**(n:=arg+2)-(1-sqrt_5)**n)/(2**n*sqrt_5)*50)
 
-
 def get_bitrate_limit(value):
     if value == 0:
         return 96
@@ -56,7 +55,6 @@ def get_bitrate_limit(value):
         return 256
     elif value == 3:
         return 384
-
 
 def get_filesie_limit(value):
     if value == 0:
@@ -68,7 +66,6 @@ def get_filesie_limit(value):
     elif value == 3:
         return 100
 
-
 def get_member(ctx):
     try:
         m = ctx.bot.cache.get_member(ctx.guild_id, ctx.options.target.id)
@@ -79,14 +76,12 @@ def get_member(ctx):
     else:
         return ctx.options.target
 
-
 def online_member_counter(member):
     try:
         if member.visible_status == hikari.Status.ONLINE:
             return True
     except AttributeError:
         return False
-
 
 def idle_member_counter(member):
     try:
@@ -95,14 +90,12 @@ def idle_member_counter(member):
     except AttributeError:
         return False
 
-
 def dnd_member_counter(member):
     try:
         if member.visible_status == hikari.Status.DO_NOT_DISTURB:
             return True
     except AttributeError:
         return False
-
 
 def offline_member_counter(member):
     try:
@@ -111,20 +104,17 @@ def offline_member_counter(member):
     except AttributeError:
         return True
 
-
 def activity_type_checker(ctx, user):
     try:
         return str(ctx.bot.cache.get_presence(ctx.guild_id, user.id).activities[0].type)
-    except AttributeError:
+    except Exception:
         return "-"
-
 
 def activity_state_checker(ctx, user):
     try:
         return str(ctx.bot.cache.get_presence(ctx.guild_id, user.id).activities[0].state)
-    except AttributeError:
+    except Exception:
         return "-"
-
 
 def category_channel_counter(ctx, channel):
     if ctx.bot.cache.get_guild_channel(channel).type == hikari.ChannelType.GUILD_CATEGORY:
@@ -132,13 +122,11 @@ def category_channel_counter(ctx, channel):
     else:
         return False
 
-
 def text_channel_counter(channel):
     if isinstance(channel, hikari.GuildTextChannel):
         return True
     else:
         return False
-
 
 def voice_channel_counter(channel):
     if isinstance(channel, hikari.GuildVoiceChannel):
@@ -146,27 +134,17 @@ def voice_channel_counter(channel):
     else:
         return False
 
-
 def stage_channel_counter(channel):
     if isinstance(channel, hikari.GuildStageChannel):
         return True
     else:
         return False
 
-
 def news_channel_counter(channel):
     if isinstance(channel, hikari.GuildNewsChannel):
         return True
     else:
         return False
-
-
-def store_channel_counter(channel):
-    if isinstance(channel, hikari.GuildStoreChannel):
-        return True
-    else:
-        False
-
 
 def channel_access_checker(ctx, channel, user):
     perm = lightbulb.utils.permissions_in(
@@ -183,7 +161,6 @@ def channel_access_checker(ctx, channel, user):
     else:
         return False
 
-
 def same_role_checker(ctx, role, guild, member):
     m = ctx.bot.cache.get_member(guild, member)
     if role in m.role_ids:
@@ -191,14 +168,12 @@ def same_role_checker(ctx, role, guild, member):
     else:
         False
 
-
 def all_channel_under_category(ctx, channel, category_id):
     channel = ctx.bot.cache.get_guild_channel(channel)
     if channel.parent_id == category_id:
         return True
     else:
         False
-
 
 def all_text_channel_under_category(ctx, channel, category_id):
     channel = ctx.bot.cache.get_guild_channel(channel)
@@ -208,7 +183,6 @@ def all_text_channel_under_category(ctx, channel, category_id):
     else:
         return False
 
-
 def all_news_channel_under_category(ctx, channel, category_id):
     channel = ctx.bot.cache.get_guild_channel(channel)
     if isinstance(channel, hikari.GuildNewsChannel):
@@ -216,16 +190,6 @@ def all_news_channel_under_category(ctx, channel, category_id):
             return True
     else:
         return False
-
-
-def all_store_channel_under_category(ctx, channel, category_id):
-    channel = ctx.bot.cache.get_guild_channel(channel)
-    if isinstance(channel, hikari.GuildStoreChannel):
-        if channel.parent_id == category_id:
-            return True
-    else:
-        return False
-
 
 def all_voice_channel_under_category(ctx, channel, category_id):
     channel = ctx.bot.cache.get_guild_channel(channel)
@@ -235,7 +199,6 @@ def all_voice_channel_under_category(ctx, channel, category_id):
     else:
         return False
 
-
 def all_stage_channel_under_category(ctx, channel, category_id):
     channel = ctx.bot.cache.get_guild_channel(channel)
     if isinstance(channel, hikari.GuildStageChannel):
@@ -243,7 +206,6 @@ def all_stage_channel_under_category(ctx, channel, category_id):
             return True
     else:
         return False
-
 
 class DetailedServerInfoMenu(menu.MultiPageMenu):
     def __init__(meta, ctx, table):
@@ -347,19 +309,18 @@ meta = lightbulb.plugins.Plugin(
 async def on_started(event: hikari.StartedEvent):
     if not meta.bot.ready.booted:
         meta.d.developer = (await meta.bot.rest.fetch_application()).owner
-        #meta.d.developer = await meta.bot.grab_user(714022418200657971)
         meta.d.artist = await meta.bot.grab_user(714022418200657971)
         meta.d.testers = [
             (await meta.bot.grab_user(id_))
             for id_ in (
                 733297588241170472,
-                713882503114653746,
-                735125848499421243,
-                763794369714454538,
-                792606073860128769,
+                733297588241170472,
+                733297588241170472,
+                733297588241170472,
+                733297588241170472,
             )
         ]
-        meta.d.support_guild = await meta.bot.rest.fetch_guild(774530528623067157)
+        meta.d.support_guild = meta.bot.cache.get_guild(774530528623067157)
         meta.d.helper_role = meta.bot.cache.get_role(786614866739068938)
 
         meta.bot.ready.up(meta)
@@ -373,7 +334,7 @@ async def on_started(event: hikari.StartedEvent):
 @lightbulb.command(name="about", aliases=["credits"], description="View info regarding those behind Solaris' development. This includes the developer and the testers.")
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
 async def about_command(ctx: lightbulb.context.base.Context):
-    prefix = await ctx.bot.prefix(ctx.get_guild().id)
+    prefix = await ctx.bot.prefix(ctx.guild_id)
     await ctx.respond(
         embed=ctx.bot.embed.build(
             ctx=ctx,
@@ -390,7 +351,6 @@ async def about_command(ctx: lightbulb.context.base.Context):
     )
 
 
-##############
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="support", aliases=["sos"], description="Provides an invite link to Solaris' support server.")
@@ -400,12 +360,11 @@ async def support_command(ctx: lightbulb.context.base.Context):
     for m in meta.d.support_guild.get_members():
         try:
             if not (ctx.bot.cache.get_member(meta.d.support_guild.id, m)).is_bot:
-                if ctx.bot.cache.get_presence(meta.d.support_guild.id, m).visible_status == hikari.Status.ONLINE:
+                if ctx.bot.cache.get_presence(meta.d.support_guild.id, m).visible_status != hikari.Status.OFFLINE:
                     online.append(m)
         except AttributeError:
             pass
 
-    #online = [m for m in meta.d.support_guild.get_members() if not (await ctx.bot.grab_user(m)).is_bot and (ctx.bot.cache.get_presence(meta.d.support_guild.id, m)).visible_status == hikari.Status.ONLINE]
     helpers = [
         m for m in meta.d.support_guild.get_members() if not (ctx.bot.cache.get_member(meta.d.support_guild.id, m)).is_bot and (ctx.bot.cache.get_member(meta.d.support_guild.id, m)).get_top_role().position == meta.d.helper_role.position
     ]
@@ -424,7 +383,6 @@ async def support_command(ctx: lightbulb.context.base.Context):
             ),
         )
     )
-###############
 
 
 @meta.command()
@@ -566,7 +524,8 @@ async def botinfo_command(ctx: lightbulb.context.base.Context):
                 fields=(
                     ("Bot version", f"{ctx.bot.version}", True),
                     ("Python version", f"{python_version()}", True),
-                    ("discord.py version", f"{hikari.__version__}", True),
+                    ("Hikari version", f"{hikari.__version__}", True),
+                    ("Lightbulb version", f"{lightbulb.__version__}", True),
                     ("Uptime", chron.short_delta(dt.timedelta(seconds=uptime)), True),
                     (
                         "CPU time",
@@ -591,6 +550,7 @@ async def botinfo_command(ctx: lightbulb.context.base.Context):
                         f"{ctx.bot.db._calls:,} ({ctx.bot.db._calls/uptime:,.3f} per second)",
                         True,
                     ),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -718,7 +678,6 @@ async def serverinfo_command(ctx: lightbulb.context.base.Context):
                 ("Voice channels", f"{len([c for c in guild.get_channels() if voice_channel_counter(ctx.bot.cache.get_guild_channel(c)) is True]):,}", True),
                 ("Stage channels", f"{len([c for c in guild.get_channels() if stage_channel_counter(ctx.bot.cache.get_guild_channel(c)) is True]):,}", True),
                 ("News channels", f"{len([c for c in guild.get_channels() if news_channel_counter(ctx.bot.cache.get_guild_channel(c)) is True]):,}", True),
-                ("Store channels", f"{len([c for c in guild.get_channels() if store_channel_counter(ctx.bot.cache.get_guild_channel(c)) is True]):,}", True),
                 (
                     "Invites",
                     f"{len(await ctx.bot.rest.fetch_guild_invites(guild.id)):,}" if perm.MANAGE_GUILD else "-",
@@ -729,6 +688,7 @@ async def serverinfo_command(ctx: lightbulb.context.base.Context):
                 ("Newest member", ctx.bot.cache.get_member(guild.id, max(guild.get_members(), key=lambda m: ctx.bot.cache.get_member(guild.id, m).joined_at)).mention, True),
                 ("Created on", chron.long_date(guild.created_at), True),
                 ("Existed for", chron.short_delta(dt.datetime.utcnow() - guild.created_at.replace(tzinfo=None)), True),
+                ("\u200b", "\u200b", True),
                 (
                     "Statuses",
                     (
@@ -786,6 +746,7 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                     ("Created on", chron.long_date(target.created_at), True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("Topic", "-" if target.topic is None else target.topic, False),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -816,33 +777,7 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                     ("Created on", chron.long_date(target.created_at), True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("Topic", "-" if target.topic is None else target.topic, False),
-                ),
-            )
-        )
-
-    elif isinstance(target, hikari.GuildStoreChannel):
-        await ctx.respond(
-            embed=ctx.bot.embed.build(
-                ctx=ctx,
-                header="Information",
-                title=f"Channel information for {target.name}",
-                description="This channel is a store channel.",
-                thumbnail=guild.icon_url,
-                fields=(
-                    ("ID", target.id, False),
-                    ("NSFW?", "True" if target.is_nsfw is True else "False", True),
-                    ("Type", target.type, True),
-                    ("Category", (ctx.bot.cache.get_guild_channel(target.parent_id)).name, True),
-                    ("Position", f"{string.ordinal(target.position+1)} / {len([c for c in guild.get_channels()]):,}", True),
-                    ("Allowed members", f"{len([m for m in guild.get_members() if channel_access_checker(ctx, target, m) is True]):,}", True),
-                    ("Overwrites", f"{len(target.permission_overwrites)}", True),
-                    (
-                        "Invites",
-                        f"{len([i for i in ctx.bot.cache.get_invites_view_for_channel(guild.id, target.id)]):,}" if perm.MANAGE_GUILD else "-",
-                        True,
-                    ),
-                    ("Created on", chron.long_date(target.created_at), True),
-                    ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -861,7 +796,7 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                     ("Region", "-" if target.region is None else target.region, True),
                     ("Category", (ctx.bot.cache.get_guild_channel(target.parent_id)).name, True),
                     ("Bitrate", f"{target.bitrate//1000:,.0f} kbps", True),
-                    ("User Limit", f"{target.user_limit:,}", True),
+                    ("User Limit", f"{target.user_limit or '∞'}", True),
                     ("Video Quality Mode", target.video_quality_mode, True),
                     ("Position", f"{string.ordinal(target.position+1)} / {len([c for c in guild.get_channels() if voice_channel_counter(ctx.bot.cache.get_guild_channel(c)) is True]):,}", True),
                     ("Overwrites", f"{len(target.permission_overwrites)}", True),
@@ -873,6 +808,7 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                     ("Members joined", f"{len([m for m in ctx.bot.cache.get_voice_states_view_for_channel(guild.id, target.id)]):,} / {target.user_limit or '∞'}", True),
                     ("Created on", chron.long_date(target.created_at), True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -902,6 +838,7 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                     ("Members joined", f"{len([m for m in ctx.bot.cache.get_voice_states_view_for_channel(guild.id, target.id)]):,} / {target.user_limit or '∞'}", True),
                     ("Created on", chron.long_date(target.created_at), True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -935,12 +872,12 @@ async def categoryinfo_command(ctx: lightbulb.context.base.Context):
                     ("All Channels", f"{len([c for c in all_channels if all_channel_under_category(ctx, c, target.id) is True]):,} / {len([ac for ac in guild.get_channels()]):,}", True),
                     ("Text Channels", f"{len([tc for tc in all_channels if all_text_channel_under_category(ctx, tc, target.id) is True]):,}", True),
                     ("News Channels", f"{len([tc for tc in all_channels if all_news_channel_under_category(ctx, tc, target.id) is True]):,}", True),
-                    ("Store Channels", f"{len([tc for tc in all_channels if all_store_channel_under_category(ctx, tc, target.id) is True]):,}", True),
                     ("Voice Channels", f"{len([vc for vc in all_channels if all_voice_channel_under_category(ctx, vc, target.id) is True]):,}", True),
                     ("Stage Channels", f"{len([tc for tc in all_channels if all_stage_channel_under_category(ctx, tc, target.id) is True]):,}", True),
                     ("Overwrites", f"{len(target.permission_overwrites)}", True),
                     ("Created on", chron.long_date(target.created_at), True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -982,6 +919,7 @@ async def roleinfo_command(ctx: lightbulb.context.base.Context):
                     ("Members", f"{len([m for m in guild.get_members() if same_role_checker(ctx, target.id, guild.id, m) is True]):,}", True),
                     ("Created on", chron.long_date(target.created_at), True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
+                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -1084,9 +1022,10 @@ async def emojiinfo_command(ctx: lightbulb.context.base.Context):
 
 
 @meta.command()
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="detailedserverinfo", aliases=["dsi", "detailedguildinfo", "dgi"], description="Displays more detailed information on your server.")
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.GuildBucket(300, 1))
+
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
 async def detailedserverinfo_command(ctx: lightbulb.context.base.Context):
     guild = ctx.get_guild()
@@ -1211,9 +1150,13 @@ async def leave_command(ctx: lightbulb.context.base.Context):
     await LeavingMenu(ctx).start()
 
 
+
 @meta.command()
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.UserBucket(10, 1))
+#@lightbulb.add_checks(checks.bot_has_booted() | checks.bot_is_ready())
+@lightbulb.add_checks(checks.bot_is_ready())
 @lightbulb.add_checks(lightbulb.guild_only)
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.UserBucket(10, 1))
+@lightbulb.add_checks(lightbulb.checks.bot_has_guild_permissions(hikari.Permissions.ADD_REACTIONS))
 @lightbulb.command(name="h", description="get help text")
 @lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
 async def h_command(ctx: lightbulb.context.base.Context):
@@ -1266,10 +1209,14 @@ async def h_command(ctx: lightbulb.context.base.Context):
     #await ctx.respond(ctx.get_guild().id)
     #l = [m for m in ctx.get_guild().get_members()]
     #await ctx.respond(l)
+    await ctx.respond(len(ctx.bot.cache.get_users_view()))
+    await ctx.respond(len([i for i in ctx.bot.cache.get_users_view()]))
+    await ctx.respond(ctx.bot.get_plugin("System"))
     await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities)
     await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].name)
     await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].type)
     await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].state)
+    #await LeavingMenu(ctx).start()
     #p = []
     #for m in ctx.get_guild().get_members():
     #    p.append(ctx.bot.cache.get_presence(ctx.get_guild().id, m))

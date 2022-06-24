@@ -43,24 +43,24 @@ def bot_has_booted():
         return True
 
 
-    return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
     #TODO: instead of sending the message in this fuction send it in the parent class
 
 
-#class ModuleHasNotInitialised(CustomCheckFailure):
-    #def __init__(self, module):
-        #super().__init__(f"The {module} module is still initialising. Please try again later.")
+class ModuleHasNotInitialised(CustomCheckFailure):
+    def __init__(self, module):
+        super().__init__(f"The {module} module is still initialising. Please try again later.")
 
 
-#def module_has_initialised(module):
-    #async def predicate(ctx):
-        #if not getattr(ctx.bot.ready, module):
-            #raise ModuleHasNotInitialised(module)
-        #return True
+def module_has_initialised(module):
+    async def predicate(ctx):
+        if not getattr(ctx.bot.ready, module):
+            raise ModuleHasNotInitialised(module)
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
 class BotIsNotReady(CustomCheckFailure):
@@ -77,7 +77,7 @@ def bot_is_ready():
             raise BotIsNotReady()
         return True
 
-    return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
     #TODO: do the same as stated in bot_has_booted() fuction
 
@@ -89,13 +89,13 @@ class FirstTimeSetupNotRun(CustomCheckFailure):
         )
 
 
-#def first_time_setup_has_run():
-    #async def predicate(ctx):
-        #if not await modules.retrieve._system__runfts(ctx.bot, ctx.guild):
-            #raise FirstTimeSetupNotRun(await ctx.bot.prefix(ctx.guild))
-        #return True
+def first_time_setup_has_run():
+    async def predicate(ctx):
+        if not await modules.retrieve.system__runfts(ctx.bot, ctx.guild_id):
+            raise FirstTimeSetupNotRun(await ctx.bot.prefix(ctx.guild))
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
 class FirstTimeSetupRun(CustomCheckFailure):
@@ -103,13 +103,13 @@ class FirstTimeSetupRun(CustomCheckFailure):
         super().__init__("The first time setup has already been run.")
 
 
-#def first_time_setup_has_not_run():
-    #async def predicate(ctx):
-        #if await modules.retrieve._system__runfts(ctx.bot, ctx.guild):
-            #raise FirstTimeSetupRun()
-        #return True
+def first_time_setup_has_not_run():
+    async def predicate(ctx):
+        if await modules.retrieve.system__runfts(ctx.bot, ctx.guild_id):
+            raise FirstTimeSetupRun()
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
 class LogChannelNotSet(CustomCheckFailure):
@@ -117,13 +117,13 @@ class LogChannelNotSet(CustomCheckFailure):
         super().__init__("The log channel has not been set.")
 
 
-#def log_channel_is_set():
-    #async def predicate(ctx):
-        #if not await modules.retrieve.system__logchannel(ctx.bot, ctx.guild):
-            #raise LogChannelNotSet()
-        #return True
+def log_channel_is_set():
+    async def predicate(ctx):
+        if not await modules.retrieve.system__logchannel(ctx.bot, ctx.guild_id):
+            raise LogChannelNotSet()
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
 class AdminRoleNotSet(CustomCheckFailure):
@@ -131,13 +131,13 @@ class AdminRoleNotSet(CustomCheckFailure):
         super().__init__("The admin role has not been set.")
 
 
-#def admin_role_is_set():
-    #async def predicate(ctx):
-        #if not await modules.retrieve.system__adminrole(ctx.bot, ctx.guild):
-            #raise AdminRoleNotSet()
-        #return True
+def admin_role_is_set():
+    async def predicate(ctx):
+        if not await modules.retrieve.system__adminrole(ctx.bot, ctx.guild_id):
+            raise AdminRoleNotSet()
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
 class AuthorCanNotConfigure(CustomCheckFailure):
@@ -145,16 +145,23 @@ class AuthorCanNotConfigure(CustomCheckFailure):
         super().__init__("You are not able to configure Solaris.")
 
 
-#def author_can_configure():
-    #async def predicate(ctx):
-        #if not (
-            #ctx.author.guild_permissions.administrator
-            #or await modules.retrieve.system__adminrole(ctx.bot, ctx.guild) in ctx.author.roles
-        #):
-            #raise AuthorCanNotConfigure()
-        #return True
+def author_can_configure():
+    async def predicate(ctx):
+        user = ctx.bot.cache.get_member(
+            ctx.guild_id,
+            ctx.author.id
+        )
+        perm = lightbulb.utils.permissions_for(
+            user
+        )
+        if not (
+            perm.ADMINISTRATOR
+            or await modules.retrieve.system__adminrole(ctx.bot, ctx.guild_id) in user.get_roles()
+        ):
+            raise AuthorCanNotConfigure()
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
 class AuthorCanNotWarn(CustomCheckFailure):
@@ -162,44 +169,51 @@ class AuthorCanNotWarn(CustomCheckFailure):
         super().__init__("You are not able to warn other members.")
 
 
-#def author_can_warn():
-    #async def predicate(ctx):
-        #if not (
-            #ctx.author.guild_permissions.administrator
-            #or await modules.retrieve.warn__warnrole(ctx.bot, ctx.guild) in ctx.author.roles
-        #):
-            #raise AuthorCanNotWarn()
-        #return True
+def author_can_warn():
+    async def predicate(ctx):
+        user = ctx.bot.cache.get_member(
+            ctx.guild_id,
+            ctx.author.id
+        )
+        perm = lightbulb.utils.permissions_for(
+            user
+        )
+        if not (
+            perm.ADMINISTRATOR
+            or await modules.retrieve.warn__warnrole(ctx.bot, ctx.guild) in user.get_roles()
+        ):
+            raise AuthorCanNotWarn()
+        return True
 
-    #return lightbulb.check(predicate)
-
-
-#class ModuleIsNotActive(CustomCheckFailure):
-    #def __init__(self, module):
-        #super().__init__(f"The {module} module is not active.")
-
-
-#def module_is_active(module):
-    #async def predicate(ctx):
-        #if not await getattr(modules.retrieve, f"_{module}__active")(ctx.bot, ctx.guild):
-            #raise ModuleIsNotActive(module)
-        #return True
-
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
 
 
-#class ModuleIsActive(CustomCheckFailure):
-    #def __init__(self, module):
-        #super().__init__(f"The {module} module is already active.")
+class ModuleIsNotActive(CustomCheckFailure):
+    def __init__(self, module):
+        super().__init__(f"The {module} module is not active.")
 
 
-#def module_is_not_active(module):
-    #async def predicate(ctx):
-        #if await getattr(modules.retrieve, f"_{module}__active")(ctx.bot, ctx.guild):
-            #raise ModuleIsActive(module)
-        #return True
+def module_is_active(module):
+    async def predicate(ctx):
+        if not await getattr(modules.retrieve, f"{module}__active")(ctx.bot, ctx.guild_id):
+            raise ModuleIsNotActive(module)
+        return True
 
-    #return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)
+
+
+class ModuleIsActive(CustomCheckFailure):
+    def __init__(self, module):
+        super().__init__(f"The {module} module is already active.")
+
+
+def module_is_not_active(module):
+    async def predicate(ctx):
+        if await getattr(modules.retrieve, f"{module}__active")(ctx.bot, ctx.guild_id):
+            raise ModuleIsActive(module)
+        return True
+
+    return lightbulb.checks.Check(predicate)
 
 
 class GuildIsDiscordBotList(CustomCheckFailure):
@@ -211,8 +225,8 @@ class GuildIsDiscordBotList(CustomCheckFailure):
 
 def guild_is_not_discord_bot_list():
     async def predicate(ctx):
-        if ctx.get_guild().id == 264445053596991498:
+        if ctx.guild_id == 264445053596991498:
             raise GuildIsDiscordBotList()
         return True
 
-    return lightbulb.check(predicate)
+    return lightbulb.checks.Check(predicate)

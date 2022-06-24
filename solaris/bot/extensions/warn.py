@@ -47,7 +47,7 @@ async def on_started(event: hikari.StartedEvent):
     if not warn.bot.ready.booted:
         warn.bot.ready.up(warn)
 
-    warn.d.configurable: bool = False
+    warn.d.configurable: bool = True
     warn.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287831847448586/alert.png"
 
 

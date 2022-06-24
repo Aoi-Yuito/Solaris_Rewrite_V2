@@ -107,6 +107,7 @@ async def on_guild_message_create(event: events.GuildMessageCreateEvent) -> None
     if server == hub.d.guild and not event.is_bot and event.author_id == 714022418200657971:
         if channel == hub.d.commands_channel:
             if event.content.startswith("shutdown") or event.content.startswith("sd"):
+                await event.message.delete()
                 await hub.bot.close()
 
         elif channel == hub.d.relay_channel:

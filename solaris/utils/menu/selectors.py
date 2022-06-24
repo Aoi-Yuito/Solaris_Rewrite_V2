@@ -125,8 +125,20 @@ class NumericalSelector(Selector): #Exit emoji id 796315251360137276
 
     @property
     async def table(self):
+        emoji_dic = {
+            "option1": 830402728295137311,
+            "option2": 830402747278819339,
+            "option3": 830402761370632192,
+            "option4": 830402774155919363,
+            "option5": 830402790731153408,
+            "option6": 830402804686127104,
+            "option7": 830402828610568192,
+            "option8": 830402844917760000,
+            "option9": 830402860659245067
+
+        }
         emoji = await self.menu.bot.rest.fetch_guild(Config.HUB_GUILD_ID)
-        return "\n".join(f"{emoji.get_emoji(k).mention} {v}" for k, v in self.pages[self.page].items())
+        return "\n".join(f"{emoji.get_emoji(emoji_dic[k]).mention} {v}" for k, v in self.pages[self.page].items())
 
     def set_selection(self):
         s = self._base_selection.copy()

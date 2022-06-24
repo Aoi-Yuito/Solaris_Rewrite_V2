@@ -39,7 +39,7 @@ MIN_STRIKES = 1
 MAX_STRIKES = 9
 
 
-async def system__runfts(ctx, channel, value):
+async def _system__runfts(ctx, channel, value):
     await ctx.bot.db.execute("UPDATE system SET RunFTS = ? WHERE GuildID = ?", value, channel.guild_id)
 
 
@@ -129,6 +129,8 @@ async def system__adminrole(ctx, channel, value):
 
 
 async def gateway__active(ctx, channel, value):
+    """The gateway status
+    The utility to know wether your gateway module is active or not."""
     await ctx.bot.db.execute("UPDATE gateway SET Active = ? WHERE GuildID = ?", value, channel.guild_id)
 
 
@@ -166,6 +168,8 @@ async def gateway__ruleschannel(ctx, channel, value):
 
 
 async def gateway__gatemessage(ctx, channel, value):
+    """The gateway message
+    The message that Solaris will show when a new member or bot enters your server."""
     if value is not None:
         await ctx.bot.db.execute("UPDATE gateway SET GateMessageID = ? WHERE GuildID = ?", value.id, channel.guild_id)
     else:
