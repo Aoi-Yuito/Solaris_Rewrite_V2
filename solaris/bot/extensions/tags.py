@@ -48,7 +48,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
         tag.bot.ready.up(tag)
 
     tag.d.configurable: bool = False
-    tag.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287868342083594/product-development.png"
+    tag.d.image = "https://cdn.discordapp.com/attachments/991572493267636275/991586086906237048/tags.png"
 
 
 @tag.command()
@@ -57,7 +57,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="tag_name", description="Name of the tag to fetch.", type=str)
 @lightbulb.command(name="tag", description="Shows the content of an existing tag.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def tag_command(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.tag_name):
         return await ctx.respond(f"{ctx.bot.cross} Tag identifiers can only contain lower case letters.")
@@ -71,11 +71,11 @@ async def tag_command(ctx: lightbulb.context.base.Context) -> None:
         for x in range(len(tag_names)):
             if tag_names[x][0] == ctx.options.tag_name[0]:
                 cache.append(tag_names[x])
-                return await ctx.respond("Did you mean..." + '\n'.join(cache) + " ?")
+        await ctx.respond("Did you mean..." + '\n'.join(cache) + " ?")
 
     else:
-            content, tag_id = await ctx.bot.db.record("SELECT TagContent, TagID FROM tags WHERE GuildID = ? AND TagName = ?", ctx.get_guild().id, ctx.options.tag_name)
-            await ctx.respond(content)
+        content, tag_id = await ctx.bot.db.record("SELECT TagContent, TagID FROM tags WHERE GuildID = ? AND TagName = ?", ctx.get_guild().id, ctx.options.tag_name)
+        await ctx.respond(content)
 
 
 @tag.command()
@@ -83,16 +83,20 @@ async def tag_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.bot_is_ready()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="tags", description="Commands to create tags in the server.")
-@lightbulb.implements(commands.prefix.PrefixCommandGroup, commands.slash.SlashCommandGroup)
+@lightbulb.implements(commands.prefix.PrefixCommandGroup)
 async def tags_group(ctx: lightbulb.context.base.Context) -> None:
-    prefix = await ctx.bot.prefix(ctx.get_guild().id)
-    cmds = sorted(ctx.command.subcommands.values(), key=lambda c: c.name)
+    cmds = []
+    prefix = await ctx.bot.prefix(ctx.guild_id)
+    cmds_list = sorted(ctx.command.subcommands.values(), key=lambda c: c.name)
+    for cmd in cmds_list:
+        if cmd not in cmds:
+            cmds.append(cmd)
 
     await ctx.respond(
         embed=ctx.bot.embed.build(
             ctx=ctx,
             header="Tags",
-            thumbnail=ctx.bot.get_me().avatar_url,
+            thumbnail="https://cdn.discordapp.com/attachments/991572493267636275/991586109073137664/tag2.png",
             description="There are a few different tag methods you can use.",
             fields=(
                 *(
@@ -115,7 +119,7 @@ async def tags_group(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.option(name="content", description="Content of the tag to create.", type=str, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="tag_name", description="Name of the tag to create.", type=str)
 @lightbulb.command(name="new", description="Creates a new tag.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def tag_create(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.tag_name):
         return await ctx.respond(f"{ctx.bot.cross} Tag identifiers can only contain lower case letters.")
@@ -154,7 +158,7 @@ async def tag_create(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.option(name="content", description="Content of the tag to create.", type=str, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
 @lightbulb.option(name="tag_name", description="Name of the tag to edit.", type=str)
 @lightbulb.command(name="edit", description="Edits an existing tag.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def tag_edit(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.tag_name):
         return await ctx.repond(f"{ctx.bot.cross} Tag identifiers can only contain lower case letters.")
@@ -192,7 +196,7 @@ async def tag_edit(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="tag_name", description="Name of the tag to delete.", type=str)
 @lightbulb.command(name="delete", description="Deletes an existing tag.", aliases=["del"])
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def tag_delete_command(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.tag_name):
         return await ctx.respond(f"{ctx.bot.cross} Tag identifiers can only contain lower case letters.")
@@ -218,7 +222,7 @@ async def tag_delete_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="tag_name", description="Name of the tag to fetch info.", type=str)
 @lightbulb.command(name = "info", description="Shows information about an existing tag.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def tag_info_command(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.tag_name):
         return await ctx.respond(f"{ctx.bot.cross} Tag identifiers can only contain lower case letters.")
@@ -249,7 +253,7 @@ async def tag_info_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target for to fetch info about tag.", type=hikari.Member, required=False)
 @lightbulb.command(name = "all", description="Shows the tag list of a tag owner.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def member_tag_list_command(ctx: lightbulb.context.base.Context) -> None:
     target = ctx.options.target or ctx.author
 
@@ -308,7 +312,7 @@ async def member_tag_list_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="tag_name", description="Name of the tag to send raw data of that tag.", type=str)
 @lightbulb.command(name="raw", description="Gets the raw content of the tag. This is with markdown escaped. Useful for editing.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def raw_command(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.tag_name):
         return await ctx.respond(f"{ctx.bot.cross} Tag identifiers can only contain lower case letters.")
@@ -330,7 +334,7 @@ async def raw_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.bot_is_ready()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="list", description="Lists the server's tags.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def tags_list_command(ctx: lightbulb.context.base.Context) -> None:
     prefix = await ctx.bot.prefix(ctx.get_guild().id)
     tag_names = await ctx.bot.db.column("SELECT TagName FROM tags WHERE GuildID = ?", ctx.get_guild().id)

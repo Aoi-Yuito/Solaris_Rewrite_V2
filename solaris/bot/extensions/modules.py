@@ -161,7 +161,7 @@ async def on_started(event: hikari.StartedEvent):
         module.bot.ready.up(module)
 
     module.d.configurable: bool = False
-    module.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288033048203274/modules.png"
+    module.d.image = "https://cdn.discordapp.com/attachments/991572493267636275/991585172925452338/module.png"
 
 
 @module.command()
@@ -171,41 +171,129 @@ async def on_started(event: hikari.StartedEvent):
 #@checks.bot_has_booted()
 #@checks.author_can_configure()
 #@checks.guild_is_not_discord_bot_list()
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def setup_command(ctx: lightbulb.context.base.Context) -> None:
     await SetupMenu(ctx).start()
 
 
-#######################having some issues here#########################
 @module.command()
 @lightbulb.add_checks(lightbulb.guild_only)
-@lightbulb.option(name="text", description="Additional arguments.", type=str, required=False, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
-#@lightbulb.option(name="roles", description="Name of the roles to set.", type=hikari.Role, modifier=lightbulb.commands.base.OptionModifier.GREEDY, required=False)
-#@lightbulb.option(name="channels", description="Name of the channels to set.", type=hikari.GuildTextChannel, modifier=lightbulb.commands.base.OptionModifier.GREEDY, required=False)
-@lightbulb.option(name="attr", description="Name of the attribute to configure.", type=str)
-@lightbulb.option(name="module", description="Name of the module to configure.", type=str)
 @lightbulb.command(name="config", aliases=["set"], description="Configures Solaris; use `help config` to bring up a special help menu.")
+@lightbulb.implements(commands.prefix.PrefixCommandGroup)
+async def config_group(ctx: lightbulb.context.base.Context):
+    cmds = []
+    prefix = await ctx.bot.prefix(ctx.guild_id)
+    cmds_list = sorted(ctx.command.subcommands.values(), key=lambda c: c.name)
+    for cmd in cmds_list:
+        if cmd not in cmds:
+            cmds.append(cmd)
+
+    await ctx.respond(
+        embed=ctx.bot.embed.build(
+            ctx=ctx,
+            header="Config",
+            thumbnail="https://cdn.discordapp.com/attachments/991572493267636275/991585569647906836/config.png",
+            description="There are a few different config methods you can use.",
+            fields=(
+                *(
+                    (
+                        cmd.name.title(),
+                        f"{cmd.description} For more infomation, use `{prefix}help config {cmd.name}`",
+                        False,
+                    )
+                    for cmd in cmds
+                ),
+            ),
+        )
+    )
+
+
+@config_group.child()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.option(name="target", description="Name of the channels to set.", type=hikari.GuildChannel, required=True)
+@lightbulb.option(name="attr", description="Name of the attribute to configure.", type=str, required=True)
+@lightbulb.option(name="module", description="Name of the module to configure.", type=str, required=True)
+@lightbulb.command(name="channels", aliases=["ch"], description="Configures channels of the specified module.")
 #@checks.bot_has_booted()
 #@checks.first_time_setup_has_run()
 #@checks.author_can_configure()
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
-async def config_command(ctx: lightbulb.context.base.Context) -> None:
-    if ctx.options.channels is not None and ctx.options.roles is None:
-        if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
-            await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
-        elif (func := getattr(modules.config, f"{ctx.options.module}__{ctx.options.attr}", None)) is not None:
-            await func(ctx, ctx.get_channel(), (ctx.options.channels[0] if len(ctx.options.channels) == 1 else ctx.options.channels) or ctx.options.text)
+@lightbulb.implements(commands.PrefixSubCommand)
+async def config_channels_command(ctx: lightbulb.context.base.Context) -> None:
+    if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
+        await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
+    elif "channel" in ctx.options.attr or "channels" in ctx.options.attr:
+        if (func := getattr(modules.config, f"{ctx.options.module}__{ctx.options.attr}", None)) is not None:
+            await func(ctx, ctx.get_channel(), ctx.options.target)
         else:
             await ctx.respond(f"{ctx.bot.cross} Invalid module or attribute.")
-    elif ctx.options.roles is not None and ctx.options.channels is None:
-        if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
-            await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
-        elif (func := getattr(modules.config, f"{ctx.options.module}__{ctx.options.attr}", None)) is not None:
-            await func(ctx, ctx.get_channel(), (ctx.options.roles[0] if len(ctx.options.roles) == 1 else ctx.options.roles) or ctx.options.text)
-        else:
-            await ctx.respond(f"{ctx.bot.cross} Invalid module or attribute.")
-#######################having some issues here#########################
+    else:
+        await ctx.respond(f"{ctx.bot.cross} The attribute you are trying to access is not related to channel objects.")
 
+
+@config_group.child()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.option(name="targets", description="Name of the roles to set.", type=hikari.Role, modifier=lightbulb.commands.base.OptionModifier.GREEDY, required=True)
+@lightbulb.option(name="attr", description="Name of the attribute to configure.", type=str, required=True)
+@lightbulb.option(name="module", description="Name of the module to configure.", type=str, required=True)
+@lightbulb.command(name="roles", aliases=["r"], description="Configures roles of the specified module.")
+#@checks.bot_has_booted()
+#@checks.first_time_setup_has_run()
+#@checks.author_can_configure()
+@lightbulb.implements(commands.PrefixSubCommand)
+async def config_roles_command(ctx: lightbulb.context.base.Context) -> None:
+    if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
+        await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
+    elif "role" in ctx.options.attr or "roles" in ctx.options.attr:
+        if (func := getattr(modules.config, f"{ctx.options.module}__{ctx.options.attr}", None)) is not None:
+            await func(ctx, ctx.get_channel(), ctx.options.targets)
+        else:
+            await ctx.respond(f"{ctx.bot.cross} Invalid module or attribute.")
+    else:
+        await ctx.respond(f"{ctx.bot.cross} The attribute you are trying to access is not related to role objects.")
+
+
+@config_group.child()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.option(name="value", description="The integer value to set.", type=int, required=True)
+@lightbulb.option(name="attr", description="Name of the attribute to configure.", type=str, required=True)
+@lightbulb.option(name="module", description="Name of the module to configure.", type=str, required=True)
+@lightbulb.command(name="integer", aliases=["i"], description="Configures integer of the specified module.")
+#@checks.bot_has_booted()
+#@checks.first_time_setup_has_run()
+#@checks.author_can_configure()
+@lightbulb.implements(commands.PrefixSubCommand)
+async def config_integer_command(ctx: lightbulb.context.base.Context) -> None:
+    if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
+        await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
+    elif "points" in ctx.options.attr or "updates" in ctx.options.attr or "strikes" in ctx.options.attr or "timeout" in ctx.options.attr or "active" in ctx.options.attr or "status" in ctx.options.attr:        
+        if (func := getattr(modules.config, f"{ctx.options.module}__{ctx.options.attr}", None)) is not None:
+            await func(ctx, ctx.get_channel(), ctx.options.value)
+        else:
+            await ctx.respond(f"{ctx.bot.cross} Invalid module or attribute.")
+    else:
+        await ctx.respond(f"{ctx.bot.cross} The attribute you are trying to access is not related to integer objects.")
+
+
+@config_group.child()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.option(name="text", description="The string or text or message to set.", type=str, required=True, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST)
+@lightbulb.option(name="attr", description="Name of the attribute to configure.", type=str, required=True)
+@lightbulb.option(name="module", description="Name of the module to configure.", type=str, required=True)
+@lightbulb.command(name="string", aliases=["s"], description="Configures string of the specified module.")
+#@checks.bot_has_booted()
+#@checks.first_time_setup_has_run()
+#@checks.author_can_configure()
+@lightbulb.implements(commands.PrefixSubCommand)
+async def config_string_command(ctx: lightbulb.context.base.Context) -> None:
+    if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
+        await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
+    elif "message" in ctx.options.attr or "prefix" in ctx.options.attr or "text" in ctx.options.attr:
+        if (func := getattr(modules.config, f"{ctx.options.module}__{ctx.options.attr}", None)) is not None:
+            await func(ctx, ctx.get_channel(), ctx.options.text)
+        else:
+            await ctx.respond(f"{ctx.bot.cross} Invalid module or attribute.")
+    else:
+        await ctx.respond(f"{ctx.bot.cross} The attribute you are trying to access is not related to string objects.")
 
 
 @module.command()
@@ -213,7 +301,7 @@ async def config_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.option(name="attr", description="Name of the attribute to retrieve.", type=str)
 @lightbulb.option(name="module", description="Name of the module to retrieve.", type=str)
 @lightbulb.command(name="retrieve", aliases=["get"], description="Retrieves attribute information for a module. Note that the output is raw.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def retrieve_command(ctx: lightbulb.context.base.Context) -> None:
     if ctx.options.module.startswith("_") or ctx.options.attr.startswith("_"):
         await ctx.respond(f"{ctx.bot.cross} The module or attribute you are trying to access is non-configurable.")
@@ -234,7 +322,7 @@ async def retrieve_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.log_channel_is_set()
 #@checks.first_time_setup_has_run()
 #@checks.author_can_configure()
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def activate_command(ctx: lightbulb.context.base.Context) -> None:
     if ctx.options.module.startswith("_"):
         await ctx.respond(f"{ctx.bot.cross} The module you are trying to access is non-configurable.")
@@ -253,7 +341,7 @@ async def activate_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.log_channel_is_set()
 #@checks.first_time_setup_has_run()
 #@checks.author_can_configure()
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def deactivate_command(ctx: lightbulb.context.base.Context) -> None:
     if ctx.options.module.startswith("_"):
         await ctx.respond(f"{ctx.bot.cross} The module you are trying to access is non-configurable.")
@@ -272,7 +360,7 @@ async def deactivate_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.log_channel_is_set()
 #@checks.first_time_setup_has_run()
 #@checks.author_can_configure()
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def restart_command(ctx: lightbulb.context.base.Context) -> None:
     if ctx.options.module.startswith("_"):
         await ctx.respond(f"{ctx.bot.cross} The module you are trying to access is non-configurable.")

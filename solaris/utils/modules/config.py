@@ -65,7 +65,7 @@ async def system__logchannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.cache.get_member(
+        ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
@@ -100,8 +100,11 @@ async def system__adminrole(ctx, channel, value):
     """The admin role
     The role used to denote which members can configure Solaris. Alongside server administrators, only members with this role can use any of Solaris' configuration commands. Upon selecting a new channel, Solaris will delete the one that was created during the first time setup should it still exist."""
 
-    bot_user = await ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
+    bot_user = ctx.bot.cache.get_member(ctx.guild_id, 841547626772168704)
     perm = lightbulb.utils.permissions_for(bot_user)
+    if len(value) > 1:
+        return await ctx.respond(f"{ctx.bot.info} You can only set 1 role for System AdminRole.")
+    value = value[0]
     
     if not isinstance(value, hikari.Role):
         await channel.send(f"{ctx.bot.cross} The admin role must be a Discord role in this server.")
@@ -109,7 +112,7 @@ async def system__adminrole(ctx, channel, value):
         await channel.send(f"{ctx.bot.cross} The everyone role can not be used as the admin role.")
     elif value.name == "@here":
         await channel.send(f"{ctx.bot.cross} The here role can not be used as the admin role.")
-    elif value.position > bot_user.get_top_role.position:
+    elif value.position > bot_user.get_top_role().position:
         await channel.send(
             f"{ctx.bot.cross} The given role can not be used as the admin role as it is above Solaris' top role in the role hierarchy."
         )
@@ -123,7 +126,8 @@ async def system__adminrole(ctx, channel, value):
             perm.MANAGE_ROLES
             and (dar := await retrieve.system__defaultadminrole(ctx.bot, channel.guild_id)) is not None
         ):
-            await dar.delete(reason="Default admin role was overridden.")
+            #await dar.delete(reason="Default admin role was overridden.")
+            await ctx.bot.rest.delete_role(ctx.guild_id, dar.id)
             lc = await retrieve.log_channel(ctx.bot, channel.guild_id)
             await lc.send(f"{ctx.bot.info} The default admin role has been deleted, as it is no longer required.")
 
@@ -140,7 +144,7 @@ async def gateway__ruleschannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.cache.get_member(
+        ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
@@ -180,7 +184,10 @@ async def gateway__blockingrole(ctx, channel, value):
     """The blocking role
     The role that Solaris will give new members upon entering the server, and remove when they accept the server rules. This role should prohibit access to all but the rules channel, or all but a read-only category."""
 
-    bot_user = await ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
+    if len(value) > 1:
+        return await ctx.respond(f"{ctx.bot.info} You can only set 1 role for Gateway BlockingRole.")
+    value = value[0]
+    bot_user = ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
 
     if await retrieve.gateway__active(ctx.bot, channel.guild_id):
         await channel.send(f"{ctx.bot.cross} This can not be done as the gateway module is currently active.")
@@ -190,7 +197,7 @@ async def gateway__blockingrole(ctx, channel, value):
         await channel.send(f"{ctx.bot.cross} The everyone role can not be used as the blocking role.")
     elif value.name == "@here":
         await channel.send(f"{ctx.bot.cross} The here role can not be used as the blocking role.")
-    elif value.position >= bot_user.get_top_role.position:
+    elif value.position >= bot_user.get_top_role().position:
         await channel.send(
             f"{ctx.bot.cross} The given role can not be used as the blocking role as it is above Solaris' top role in the role hierarchy."
         )
@@ -208,7 +215,7 @@ async def gateway__memberroles(ctx, channel, values):
     The role(s) that Solaris will give members upon accepting the server rules. This is optional, but could be useful if you want members to have specific roles when they join, for example for a levelling system, or to automatically opt them in to server announcements. You can set up to 3 member roles. The roles can be unset at any time by passing no arguments to the command below."""
     values = [values] if not isinstance(values, list) else values
 
-    bot_user = await ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
+    bot_user = ctx.bot.cache.get_member(ctx.get_guild().id, 841547626772168704)
 
     if (br := await retrieve.gateway__blockingrole(ctx.bot, channel.guild_id)) is None:
         await channel.send(f"{ctx.bot.cross} You need to set the blocking role before you can set the member roles.")
@@ -227,7 +234,7 @@ async def gateway__memberroles(ctx, channel, values):
         await channel.send(f"{ctx.bot.cross} The here role can not be used as a member role.")
     elif any(v == br for v in values):
         await channel.send(f"{ctx.bot.cross} No member roles can be the same as the blocking role.")
-    elif any(v.position > bot_user.get_top_role.position for v in values):
+    elif any(v.position > bot_user.get_top_role().position for v in values):
         await channel.send(
             f"{ctx.bot.cross} One or more given roles can not be used as member roles as they are above Solaris' top role in the role hierarchy."
         )
@@ -287,7 +294,7 @@ async def gateway__welcomechannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.cache.get_member(
+        ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),
@@ -324,7 +331,7 @@ async def gateway__goodbyechannel(ctx, channel, value):
 
     perm = lightbulb.utils.permissions_in(
         value,
-        await ctx.bot.cache.get_member(
+        ctx.bot.cache.get_member(
             ctx.get_guild().id,
             841547626772168704
         ),

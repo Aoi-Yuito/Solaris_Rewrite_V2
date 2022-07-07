@@ -40,3 +40,6 @@ class Config:
     HUB_COMMANDS_CHANNEL_ID: Final = int(getenv("HUB_COMMANDS_CHANNEL_ID", ""))
     HUB_RELAY_CHANNEL_ID: Final = int(getenv("HUB_RELAY_CHANNEL_ID", ""))
     HUB_STDOUT_CHANNEL_ID: Final = int(getenv("HUB_STDOUT_CHANNEL_ID", ""))
+    WOLFRAM_API_KEY: Final = getenv("WOLFRAM_API_KEY", "")
+    WOLFRAM_USER_LIMIT_DAY: Final = int(getenv("WOLFRAM_USER_LIMIT_DAY", ""))
+    WOLFRAM_GUILD_LIMIT_DAY: Final = int(getenv("WOLFRAM_GUILD_LIMIT_DAY", ""))

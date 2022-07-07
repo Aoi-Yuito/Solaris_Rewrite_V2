@@ -149,7 +149,7 @@ async def eval_command(ctx: lightbulb.context.base.Context) -> None:
             timestamp=datetime.now().astimezone()
         )
         embed.set_thumbnail(
-            "https://cdn.discordapp.com/attachments/803218459160608777/925273699953815572/kisspng-professional-python-programmer-computer-programmin-python-logo-download-5b47725c1cc0d6.3474912915314089881178-removebg-preview.png"
+            "https://cdn.discordapp.com/attachments/991572493267636275/991590206258040872/python_logo.png"
         )
         embed.set_footer(
             text=f"Invoked by {ctx.author.username}",
@@ -171,7 +171,7 @@ async def eval_command(ctx: lightbulb.context.base.Context) -> None:
             timestamp=datetime.now().astimezone()
         )
         embed.set_thumbnail(
-            "https://cdn.discordapp.com/attachments/803218459160608777/925273699953815572/kisspng-professional-python-programmer-computer-programmin-python-logo-download-5b47725c1cc0d6.3474912915314089881178-removebg-preview.png"
+            "https://cdn.discordapp.com/attachments/991572493267636275/991590206258040872/python_logo.png"
         )
         embed.set_footer(
             text=f"Invoked by {ctx.author.username}",
@@ -194,7 +194,7 @@ async def eval_command(ctx: lightbulb.context.base.Context) -> None:
                     timestamp=datetime.now().astimezone()
                 )
                 embed.set_thumbnail(
-                    "https://cdn.discordapp.com/attachments/803218459160608777/925273699953815572/kisspng-professional-python-programmer-computer-programmin-python-logo-download-5b47725c1cc0d6.3474912915314089881178-removebg-preview.png"
+                    "https://cdn.discordapp.com/attachments/991572493267636275/991590206258040872/python_logo.png"
                 )
                 embed.set_footer(
                     text=f"Invoked by {ctx.author.username}",
@@ -214,7 +214,7 @@ async def eval_command(ctx: lightbulb.context.base.Context) -> None:
                     timestamp=datetime.now().astimezone()
                 )
                 embed.set_thumbnail(
-                    "https://cdn.discordapp.com/attachments/803218459160608777/925273699953815572/kisspng-professional-python-programmer-computer-programmin-python-logo-download-5b47725c1cc0d6.3474912915314089881178-removebg-preview.png"
+                    "https://cdn.discordapp.com/attachments/991572493267636275/991590206258040872/python_logo.png"
                 )
                 embed.set_footer(
                     text=f"Invoked by {ctx.author.username}",

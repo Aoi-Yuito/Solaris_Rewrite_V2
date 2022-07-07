@@ -91,7 +91,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
         bot_help.bot.ready.up(bot_help)
 
     bot_help.d.configurable: bool = False
-    bot_help.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288131811504158/help.png"
+    bot_help.d.image = "https://cdn.discordapp.com/attachments/991572493267636275/991577135225516092/user-guide.png"
 
 
 async def basic_syntax(ctx, cmd, prefix):
@@ -141,7 +141,8 @@ async def get_command_mapping(bot_help, ctx):
                                 break
                             mapping[extension].append(cmd)
                             for c in cmd.subcommands.values():
-                                mapping[extension].append(c)
+                                if c not in mapping[extension]:
+                                    mapping[extension].append(c)
                         except AttributeError:
                             mapping[extension].append(cmd)
 
@@ -176,7 +177,7 @@ async def convert(ctx, arg):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="cmd", description="Name of the command to view.", type=str, modifier=lightbulb.commands.base.OptionModifier.CONSUME_REST, required=False)
 @lightbulb.command(name="help", description="Help with anything Solaris. Passing a command name through will show help with that specific command")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def help_command(ctx: lightbulb.context.base.Context)-> None:
     prefix = await ctx.bot.prefix(ctx.get_guild().id)
 
@@ -222,7 +223,6 @@ async def help_command(ctx: lightbulb.context.base.Context)-> None:
                     "header": "Help",
                     "title": f"The `{ctx.bot.get_plugin(extension.title()).name}` module",
                     "description": f"{ctx.bot.get_plugin(extension.title()).description}\n\nUse `{prefix}help [command]` for more detailed help on a command. You can not run commands with `(✗)` next to them.",
-                    #"thumbnail": ctx.bot.get_me().avatar_url,
                     "thumbnail": ctx.bot.get_plugin(extension.title()).d.image,
                     "fields": (
                             (

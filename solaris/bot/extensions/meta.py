@@ -19,6 +19,7 @@
 
 import hikari
 import lightbulb
+import chat_exporter
 from lightbulb import commands
 
 import math
@@ -326,13 +327,13 @@ async def on_started(event: hikari.StartedEvent):
         meta.bot.ready.up(meta)
 
     meta.d.configurable: bool = False
-    meta.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925288082754908161/meta.png"
+    meta.d.image = "https://cdn.discordapp.com/attachments/991572493267636275/991577676794056734/meta.png"
 
 
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="about", aliases=["credits"], description="View info regarding those behind Solaris' development. This includes the developer and the testers.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def about_command(ctx: lightbulb.context.base.Context):
     prefix = await ctx.bot.prefix(ctx.guild_id)
     await ctx.respond(
@@ -354,7 +355,7 @@ async def about_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="support", aliases=["sos"], description="Provides an invite link to Solaris' support server.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def support_command(ctx: lightbulb.context.base.Context):
     online = []
     for m in meta.d.support_guild.get_members():
@@ -375,7 +376,7 @@ async def support_command(ctx: lightbulb.context.base.Context):
             ctx=ctx,
             header="Information",
             description=f"Click [here]({SUPPORT_GUILD_INVITE_LINK}) to join the support server.",
-            thumbnail=ctx.bot.get_me().avatar_url,
+            thumbnail="https://cdn.discordapp.com/attachments/991572493267636275/991578140663087104/support.png",
             fields=(
                 ("Online / members", f"{len(online):,} / {len(meta.d.support_guild.get_members()):,}", True),
                 ("Online / helpers", f"{len(online_helpers):,} / {len(helpers):,}", True),
@@ -388,7 +389,7 @@ async def support_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="invite", aliases=["join"], description="Provides the links necessary to invite Solaris to other servers.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def invite_command(ctx: lightbulb.context.base.Context):
     await ctx.respond(
         embed=ctx.bot.embed.build(
@@ -417,7 +418,7 @@ async def invite_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="source", aliases=["src"], description="Provides a link to Solaris' source code.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def source_command(ctx: lightbulb.context.base.Context):
     await ctx.respond(
         embed=ctx.bot.embed.build(
@@ -438,7 +439,7 @@ async def source_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="issue", aliases=["bugreport", "reportbug", "featurerequest", "requestfeature"], description="Provides a link to open an issue on the Solaris repo.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def issue_command(ctx: lightbulb.context.base.Context):
     await ctx.respond(
         embed=ctx.bot.embed.build(
@@ -466,7 +467,7 @@ async def issue_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="version", description="The version to view.", required=False)
 @lightbulb.command(name="changelog", aliases=["release"], description="Provides a link to view the changelog for the given version.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def changelog_command(ctx: lightbulb.context.base.Context):
     url = (
         "https://github.com/parafoxia/Solaris/releases"
@@ -489,7 +490,7 @@ async def changelog_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="ping", description="Ping Command")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def ping_command(ctx: lightbulb.context.base.Context):
     lat = meta.bot.heartbeat_latency * 1_000
     s = time()
@@ -504,7 +505,7 @@ async def ping_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_cooldown(callback=lambda _: lightbulb.UserBucket(300, 1))
 @lightbulb.command(name="botinfo", aliases=["bi", "botstats", "stats", "bs"], description="Displays statistical information on Solaris.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def botinfo_command(ctx: lightbulb.context.base.Context):
     with (proc := psutil.Process()).oneshot():
         prefix = await ctx.bot.prefix(ctx.get_guild().id)
@@ -526,6 +527,8 @@ async def botinfo_command(ctx: lightbulb.context.base.Context):
                     ("Python version", f"{python_version()}", True),
                     ("Hikari version", f"{hikari.__version__}", True),
                     ("Lightbulb version", f"{lightbulb.__version__}", True),
+                    ("Servers", f"{ctx.bot.guild_count:,}", True),
+                    ("Users", f"{ctx.bot.user_count:,}", True),
                     ("Uptime", chron.short_delta(dt.timedelta(seconds=uptime)), True),
                     (
                         "CPU time",
@@ -539,18 +542,16 @@ async def botinfo_command(ctx: lightbulb.context.base.Context):
                         f"{memory_usage:,.3f} / {total_memory:,.0f} MiB ({memory_percent:.0f}%)",
                         True,
                     ),
-                    ("Servers", f"{ctx.bot.guild_count:,}", True),
-                    ("Users", f"{ctx.bot.user_count:,}", True),
-                    ("Commands", f"{ctx.bot.command_count:,}", True),
                     ("Code", f"{ctx.bot.loc.code:,} lines", True),
                     ("Comments", f"{ctx.bot.loc.docs:,} lines", True),
                     ("Blank", f"{ctx.bot.loc.empty:,} lines", True),
+                    ("Commands", f"{ctx.bot.command_count:,}", True),
+                    ("Nº of Shards", f"{ctx.bot.shard_count:,}", True),
                     (
                         "Database calls since uptime",
                         f"{ctx.bot.db._calls:,} ({ctx.bot.db._calls/uptime:,.3f} per second)",
                         True,
                     ),
-                    ("\u200b", "\u200b", True),
                 ),
             )
         )
@@ -560,13 +561,32 @@ async def botinfo_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target the User to View.", type=hikari.User, required=False)
 @lightbulb.command(name="userinfo", aliases=["ui"], description="Displays information on a given user. If no user is provided, Solaris will display your information.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def userinfo_command(ctx: lightbulb.context.base.Context):
     target = get_member(ctx) or ctx.bot.cache.get_member(ctx.guild_id, ctx.author.id)
+    created_at = target.created_at
+    creation_timestamp = dt.datetime(
+        created_at.year,
+        created_at.month,
+        created_at.day,
+        created_at.hour,
+        created_at.minute,
+        created_at.second
+    ).timestamp()
 
     if isinstance(target, hikari.Member):
-        ps = target.premium_since.replace(tzinfo=None) if target.premium_since is not None else target.premium_since
         ngr = len([r for r in ctx.get_guild().get_roles()])
+        ps = target.premium_since.replace(tzinfo=None) if target.premium_since is not None else target.premium_since
+
+        joined_at = target.joined_at
+        joined_timestamp = dt.datetime(
+            joined_at.year,
+            joined_at.month,
+            joined_at.day,
+            joined_at.hour,
+            joined_at.minute,
+            joined_at.second
+        ).timestamp()
 
         perm = lightbulb.utils.permissions_for(
             ctx.bot.cache.get_member(
@@ -592,8 +612,10 @@ async def userinfo_command(ctx: lightbulb.context.base.Context):
                     ("Discriminator", target.discriminator, True),
                     ("Bot?", target.is_bot, True),
                     ("Admin?", "True" if perm.ADMINISTRATOR else "False", True),
-                    ("Created on", chron.long_date(target.created_at), True),
-                    ("Joined on", chron.long_date(target.joined_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    #("Joined on", chron.long_date(target.joined_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n<t:{int(creation_timestamp)}:F>", True),
+                    ("Joined on", f"<t:{int(joined_timestamp)}:R> on\n<t:{int(joined_timestamp)}:F>", True),
                     ("Boosted on", chron.long_date(ps) if ps else "-", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("Member for", chron.short_delta(dt.datetime.utcnow() - target.joined_at.replace(tzinfo=None)), True),
@@ -625,7 +647,8 @@ async def userinfo_command(ctx: lightbulb.context.base.Context):
                     ("ID", target.id, True),
                     ("Discriminator", target.discriminator, True),
                     ("Bot?", target.is_bot, True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n<t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("\u200b", "\u200b", True),
                 ),
@@ -639,7 +662,7 @@ async def userinfo_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="serverinfo", aliases=["si", "guildinfo", "gi"], description="Displays information on your server.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def serverinfo_command(ctx: lightbulb.context.base.Context):
     guild = ctx.get_guild()
     guild_owner = ctx.bot.cache.get_member(guild.id, guild.owner_id)
@@ -653,6 +676,15 @@ async def serverinfo_command(ctx: lightbulb.context.base.Context):
 
     bot_count = len([m for m in guild.get_members() if ctx.bot.cache.get_member(guild.id, m).is_bot])
     human_count = guild.member_count - bot_count
+    created_at = guild.created_at
+    creation_timestamp = dt.datetime(
+        created_at.year,
+        created_at.month,
+        created_at.day,
+        created_at.hour,
+        created_at.minute,
+        created_at.second
+    ).timestamp()
 
     await ctx.respond(
         embed=ctx.bot.embed.build(
@@ -686,7 +718,8 @@ async def serverinfo_command(ctx: lightbulb.context.base.Context):
                 ("Emojis", f"{len(guild.get_emojis()):,} / {get_emoji_limit(guild.premium_tier.value)*2:,}", True),
                 ("Boosts", f"{guild.premium_subscription_count:,} (level {guild.premium_tier.value})", True),
                 ("Newest member", ctx.bot.cache.get_member(guild.id, max(guild.get_members(), key=lambda m: ctx.bot.cache.get_member(guild.id, m).joined_at)).mention, True),
-                ("Created on", chron.long_date(guild.created_at), True),
+                #("Created on", chron.long_date(guild.created_at), True),
+                ("Created on", f"<t:{int(creation_timestamp)}:R> on\n<t:{int(creation_timestamp)}:F>", True),
                 ("Existed for", chron.short_delta(dt.datetime.utcnow() - guild.created_at.replace(tzinfo=None)), True),
                 ("\u200b", "\u200b", True),
                 (
@@ -707,7 +740,7 @@ async def serverinfo_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target the channel to View.", type=hikari.GuildChannel, required=False)
 @lightbulb.command(name="channelinfo", aliases=["ci"], description="Displays information on a given channel.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def channelinfo_command(ctx: lightbulb.context.base.Context):
     guild = ctx.get_guild()
     target = ctx.options.target or ctx.get_channel()
@@ -718,6 +751,16 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
             841547626772168704
         )
     )
+
+    created_at = target.created_at
+    creation_timestamp = dt.datetime(
+        created_at.year,
+        created_at.month,
+        created_at.day,
+        created_at.hour,
+        created_at.minute,
+        created_at.second
+    ).timestamp()
 
     if isinstance(target, hikari.GuildTextChannel):
         await ctx.respond(
@@ -743,7 +786,8 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                     ),
                     ("Pins", f"{len(await target.fetch_pins())}", True),
                     ("Slowmode delay", target.rate_limit_per_user, True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("Topic", "-" if target.topic is None else target.topic, False),
                     ("\u200b", "\u200b", True),
@@ -774,7 +818,8 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                         True,
                     ),
                     ("Pins", f"{len(await target.fetch_pins())}", True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("Topic", "-" if target.topic is None else target.topic, False),
                     ("\u200b", "\u200b", True),
@@ -806,7 +851,8 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                         True,
                     ),
                     ("Members joined", f"{len([m for m in ctx.bot.cache.get_voice_states_view_for_channel(guild.id, target.id)]):,} / {target.user_limit or '∞'}", True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("\u200b", "\u200b", True),
                 ),
@@ -836,7 +882,8 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
                         True,
                     ),
                     ("Members joined", f"{len([m for m in ctx.bot.cache.get_voice_states_view_for_channel(guild.id, target.id)]):,} / {target.user_limit or '∞'}", True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("\u200b", "\u200b", True),
                 ),
@@ -851,11 +898,21 @@ async def channelinfo_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target the category to View.", type=hikari.GuildCategory, required=False)
 @lightbulb.command(name="categoryinfo", aliases=["cti"], description="Displays information on a given category.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def categoryinfo_command(ctx: lightbulb.context.base.Context):
     guild = ctx.get_guild()
     target = ctx.options.target or ctx.bot.cache.get_guild_channel(ctx.get_channel().parent_id)
     all_channels = ctx.bot.cache.get_guild_channels_view_for_guild(guild.id)
+
+    created_at = target.created_at
+    creation_timestamp = dt.datetime(
+        created_at.year,
+        created_at.month,
+        created_at.day,
+        created_at.hour,
+        created_at.minute,
+        created_at.second
+    ).timestamp()
 
     if isinstance(target, hikari.GuildCategory):
         await ctx.respond(
@@ -875,7 +932,8 @@ async def categoryinfo_command(ctx: lightbulb.context.base.Context):
                     ("Voice Channels", f"{len([vc for vc in all_channels if all_voice_channel_under_category(ctx, vc, target.id) is True]):,}", True),
                     ("Stage Channels", f"{len([tc for tc in all_channels if all_stage_channel_under_category(ctx, tc, target.id) is True]):,}", True),
                     ("Overwrites", f"{len(target.permission_overwrites)}", True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("\u200b", "\u200b", True),
                 ),
@@ -890,13 +948,22 @@ async def categoryinfo_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target the role to View.", type=hikari.Role, required=False)
 @lightbulb.command(name="roleinfo", aliases=["ri"], description="Displays information on a given role.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def roleinfo_command(ctx: lightbulb.context.base.Context):
     guild = ctx.get_guild()
     target = ctx.options.target or ctx.author.get_top_role()
 
     if isinstance(target, hikari.Role):
         ngr = len(guild.get_roles())
+        created_at = target.created_at
+        creation_timestamp = dt.datetime(
+            created_at.year,
+            created_at.month,
+            created_at.day,
+            created_at.hour,
+            created_at.minute,
+            created_at.second
+        ).timestamp()
 
         await ctx.respond(
             embed=ctx.bot.embed.build(
@@ -917,7 +984,8 @@ async def roleinfo_command(ctx: lightbulb.context.base.Context):
                     ("Colour", f"{str(target.colour)}", True),
                     ("Unicode Emoji", "-" if target.unicode_emoji is None else  target.unicode_emoji, True),
                     ("Members", f"{len([m for m in guild.get_members() if same_role_checker(ctx, target.id, guild.id, m) is True]):,}", True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("\u200b", "\u200b", True),
                 ),
@@ -932,11 +1000,21 @@ async def roleinfo_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target the message to View.", type=hikari.Message, required=True)
 @lightbulb.command(name="messageinfo", aliases=["mi"], description="Displays information on a given message.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def messageinfo_command(ctx: lightbulb.context.base.Context):
     target = ctx.options.target
 
     if isinstance(target, hikari.Message):
+        created_at = target.created_at
+        creation_timestamp = dt.datetime(
+            created_at.year,
+            created_at.month,
+            created_at.day,
+            created_at.hour,
+            created_at.minute,
+            created_at.second
+        ).timestamp()
+        
         await ctx.respond(
             embed=ctx.bot.embed.build(
                 ctx=ctx,
@@ -953,15 +1031,16 @@ async def messageinfo_command(ctx: lightbulb.context.base.Context):
                     ("Author", target.author.mention, True),
                     ("Channel", ctx.bot.cache.get_guild_channel(target.channel_id).mention, True),
                     ("Reactions", f"{len([r.count for r in target.reactions]):,}", True),
-                    ("Member mentions", f"{len(target.mentions.user_ids):,}", True),
-                    ("Role mentions", f"{len(target.mentions.role_ids):,}", True),
-                    ("Channels mentions", f"{len([c for c in target.mentions.channels_ids]):,}", True),
+                    ("Member mentions", f"{len(target.user_mentions_ids):,}", True),
+                    ("Role mentions", f"{len(target.role_mention_ids):,}", True),
+                    ("Channels mentions", f"{len([c for c in target.channel_mention_ids]):,}", True),
                     #("Flags", target.flags, True),
                     #("Components", len([c for c in target.components]), True),
                     #("Type", target.type, True),
                     #("Webhook ID", target.webhook_id, True),
                     ("Attachments", f"{len(target.attachments):,}", True),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                     ("Last edited on", chron.long_date(target.edited_timestamp) if target.edited_timestamp else chron.long_date(target.created_at), True),
                     (
@@ -979,9 +1058,10 @@ async def messageinfo_command(ctx: lightbulb.context.base.Context):
 
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.add_checks(lightbulb.checks.bot_has_guild_permissions(hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS))
 @lightbulb.option(name="target", description="Target the emoji to View.", type=hikari.Emoji, required=True)
 @lightbulb.command(name="emojiinfo", aliases=["ei"], description="Displays information on a given emoji. This only works for custom emoji.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def emojiinfo_command(ctx: lightbulb.context.base.Context):
     perm = lightbulb.utils.permissions_for(
         ctx.bot.cache.get_member(
@@ -993,6 +1073,17 @@ async def emojiinfo_command(ctx: lightbulb.context.base.Context):
     if isinstance(ctx.options.target, hikari.Emoji):
         emoji = ctx.options.target.parse(ctx.options.target.mention)
         target = await ctx.bot.rest.fetch_emoji(ctx.get_guild().id, emoji.id)
+
+        created_at = target.created_at
+        creation_timestamp = dt.datetime(
+            created_at.year,
+            created_at.month,
+            created_at.day,
+            created_at.hour,
+            created_at.minute,
+            created_at.second
+        ).timestamp()
+        
         await ctx.respond(
             embed=ctx.bot.embed.build(
                 ctx=ctx,
@@ -1009,7 +1100,8 @@ async def emojiinfo_command(ctx: lightbulb.context.base.Context):
                         u.mention if (u := target.user) and perm.MANAGE_EMOJIS_AND_STICKERS is not None else "-",
                         True,
                     ),
-                    ("Created on", chron.long_date(target.created_at), True),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
                     ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
                 ),
             )
@@ -1022,11 +1114,65 @@ async def emojiinfo_command(ctx: lightbulb.context.base.Context):
 
 
 @meta.command()
-@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
 @lightbulb.add_checks(lightbulb.guild_only)
-@lightbulb.command(name="detailedserverinfo", aliases=["dsi", "detailedguildinfo", "dgi"], description="Displays more detailed information on your server.")
+@lightbulb.add_checks(lightbulb.checks.bot_has_guild_permissions(hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS))
+@lightbulb.option(name="ID", description="ID of the sticker to View.", type=int, required=True)
+@lightbulb.command(name="stickerinfo", aliases=["sti"], description="Displays information on a given sticker.")
+@lightbulb.implements(commands.prefix.PrefixCommand)
+async def stickerinfo_command(ctx: lightbulb.context.base.Context):
+    target = await ctx.bot.rest.fetch_sticker(ctx.options.ID)
+    perm = lightbulb.utils.permissions_for(
+        ctx.bot.cache.get_member(
+            ctx.get_guild().id,
+            841547626772168704
+        )
+    )
 
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+    if isinstance(target, hikari.GuildSticker) or isinstance(target, hikari.StandardSticker):
+        created_at = target.created_at
+        creation_timestamp = dt.datetime(
+            created_at.year,
+            created_at.month,
+            created_at.day,
+            created_at.hour,
+            created_at.minute,
+            created_at.second
+        ).timestamp()
+        
+        await ctx.respond(
+            embed=ctx.bot.embed.build(
+                ctx=ctx,
+                header="Information",
+                title=f"Sticker information for {target.name}",
+                thumbnail=target.image_url,
+                fields=(
+                    ("ID", target.id, False),
+                    ("Tag", target.tag, True),
+                    ("Type", target.type, True),
+                    ("Available?", target.is_available, True),
+                    (
+                        "Created by",
+                        u.mention if (u := target.user) and perm.MANAGE_EMOJIS_AND_STICKERS is not None else "-",
+                        True,
+                    ),
+                    #("Created on", chron.long_date(target.created_at), True),
+                    ("Created on", f"<t:{int(creation_timestamp)}:R> on\n <t:{int(creation_timestamp)}:F>", True),
+                    ("Existed for", chron.short_delta(dt.datetime.utcnow() - target.created_at.replace(tzinfo=None)), True),
+                ),
+            )
+        )
+
+    else:
+        await ctx.respond(
+            f"{ctx.bot.cross} Solaris was unable to identify an sticker with the information provided."
+        )
+
+
+@meta.command()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.add_cooldown(callback=lambda _: lightbulb.buckets.GuildBucket(300, 1))
+@lightbulb.command(name="detailedserverinfo", aliases=["dsi", "detailedguildinfo", "dgi"], description="Displays more detailed information on your server.")
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def detailedserverinfo_command(ctx: lightbulb.context.base.Context):
     guild = ctx.get_guild()
     perm = lightbulb.utils.permissions_for(
@@ -1109,7 +1255,7 @@ async def detailedserverinfo_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.option(name="target", description="Target the user to View.", type=hikari.User, required=False)
 @lightbulb.command(name="avatar", aliases=["profile", "pfp", "av"], description="Displays the avatar (profile picture) of a given user.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def avatar_command(ctx: lightbulb.context.base.Context):
     target = ctx.options.target or ctx.author
 
@@ -1129,7 +1275,7 @@ async def avatar_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="icon", description="Displays the icon of your server.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def icon_command(ctx: lightbulb.context.base.Context):
     await ctx.respond(
         embed=ctx.bot.embed.build(
@@ -1144,7 +1290,7 @@ async def icon_command(ctx: lightbulb.context.base.Context):
 @meta.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="leave", description="Utility to make Solaris clean up before leaving the server.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 #@checks.author_can_configure()
 async def leave_command(ctx: lightbulb.context.base.Context):
     await LeavingMenu(ctx).start()
@@ -1158,7 +1304,7 @@ async def leave_command(ctx: lightbulb.context.base.Context):
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.add_checks(lightbulb.checks.bot_has_guild_permissions(hikari.Permissions.ADD_REACTIONS))
 @lightbulb.command(name="h", description="get help text")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def h_command(ctx: lightbulb.context.base.Context):
     #perm = lightbulb.utils.permissions_for(
     #    ctx.bot.cache.get_member(
@@ -1209,13 +1355,15 @@ async def h_command(ctx: lightbulb.context.base.Context):
     #await ctx.respond(ctx.get_guild().id)
     #l = [m for m in ctx.get_guild().get_members()]
     #await ctx.respond(l)
+    await chat_exporter.quick_export(ctx.get_channel())
+    return
     await ctx.respond(len(ctx.bot.cache.get_users_view()))
     await ctx.respond(len([i for i in ctx.bot.cache.get_users_view()]))
     await ctx.respond(ctx.bot.get_plugin("System"))
-    await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities)
-    await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].name)
-    await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].type)
-    await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].state)
+    #await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities)
+    #await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].name)
+    #await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].type)
+    #await ctx.respond(ctx.bot.cache.get_presence(ctx.get_guild().id, ctx.author.id).activities[0].state)
     #await LeavingMenu(ctx).start()
     #p = []
     #for m in ctx.get_guild().get_members():

@@ -35,13 +35,13 @@ async def on_started(event: hikari.StartedEvent):
         system.bot.ready.up(system)
 
     system.d.configurable: bool = True
-    system.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287945454362684/settings.png"
+    system.d.image = "https://cdn.discordapp.com/attachments/991572493267636275/991586019390529536/innovation.png"
 
 
 @system.command()
 @lightbulb.add_checks(lightbulb.guild_only)
 @lightbulb.command(name="prefix", description="Displays Solaris's prefix in your server. Note that mentioning Blue Brain will always work.")
-@lightbulb.implements(commands.prefix.PrefixCommand, commands.slash.SlashCommand)
+@lightbulb.implements(commands.prefix.PrefixCommand)
 async def prefix_command(ctx: lightbulb.context.base.Context) -> None:
     prefix = await ctx.bot.prefix(ctx.get_guild().id)
     await ctx.respond(

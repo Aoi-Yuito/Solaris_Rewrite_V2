@@ -39,7 +39,7 @@ async def gateway(ctx):
         )
 
         if active:
-            await ctx.repond(f"{ctx.bot.cross} The gateway module is already active.")
+            await ctx.respond(f"{ctx.bot.cross} The gateway module is already active.")
         elif not (perm.MANAGE_ROLES and perm.KICK_MEMBERS):
             await ctx.respond(
                 f"{ctx.bot.cross} The gateway module could not be activated as Solaris does not have the Manage Roles and Kick Members permissions."
@@ -55,7 +55,7 @@ async def gateway(ctx):
         else:
             gm = await rc.send(
                 gt
-                or f"**Attention:** Do you accept the rules outlined above? If you do, select {ctx.bot.emoji.mention('confirm')}, otherwise select {ctx.bot.emoji.mention('cancel')}."
+                or f"**Attention:** Do you accept the rules outlined above? If you do, select {ctx.bot.tick}, otherwise select {ctx.bot.cross}."
             )
             
             emoji = []

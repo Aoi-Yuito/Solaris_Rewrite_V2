@@ -53,7 +53,7 @@ async def on_started(event: hikari.StartedEvent) -> None:
 
 @hub.listener(events.GuildJoinEvent)
 async def on_guild_join(event: events.GuildJoinEvent) -> None:
-    hub.d.guild = await hub.bot.rest.fetch_guild(Config.HUB_GUILD_ID)
+    hub.d.guild = await hub.bot.cache.get_guild(Config.HUB_GUILD_ID)
 
     if hub.d.guild is not None:
         hub.d.stdout_channel = hub.d.guild.get_channel(Config.HUB_STDOUT_CHANNEL_ID)
@@ -72,7 +72,7 @@ async def on_guild_join(event: events.GuildJoinEvent) -> None:
 
 @hub.listener(events.GuildLeaveEvent)
 async def on_guild_leave(event: events.GuildLeaveEvent) -> None:
-    hub.d.guild = await hub.bot.rest.fetch_guild(Config.HUB_GUILD_ID)
+    hub.d.guild = await hub.bot.cache.get_guild(Config.HUB_GUILD_ID)
 
     if hub.d.guild is not None:
         hub.d.stdout_channel = hub.d.guild.get_channel(Config.HUB_STDOUT_CHANNEL_ID)

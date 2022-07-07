@@ -48,10 +48,42 @@ async def on_started(event: hikari.StartedEvent):
         warn.bot.ready.up(warn)
 
     warn.d.configurable: bool = True
-    warn.d.image = "https://cdn.discordapp.com/attachments/803218459160608777/925287831847448586/alert.png"
+    warn.d.image = "https://cdn.discordapp.com/attachments/991572493267636275/991586267630403604/siren.png"
 
 
 @warn.command()
+@lightbulb.add_checks(lightbulb.guild_only)
+@lightbulb.command(name="warn", description="Warns one or more members in your server. Use the command for information on available subcommands.")
+@lightbulb.implements(commands.prefix.PrefixCommandGroup)
+async def warn_group(ctx: lightbulb.context.base.Context):
+    cmds = []
+    prefix = await ctx.bot.prefix(ctx.guild_id)
+    cmds_list = sorted(ctx.command.subcommands.values(), key=lambda c: c.name)
+    for cmd in cmds_list:
+        if cmd not in cmds:
+            cmds.append(cmd)
+
+    await ctx.respond(
+        embed=ctx.bot.embed.build(
+            ctx=ctx,
+            header="Warn",
+            thumbnail="https://cdn.discordapp.com/attachments/991572493267636275/991586267630403604/siren.png",
+            description="There are a few different warning methods you can use.",
+            fields=(
+                *(
+                    (
+                        cmd.name.title(),
+                        f"{cmd.description} For more infomation, use `{prefix}help warn {cmd.name}`",
+                        False,
+                    )
+                    for cmd in cmds
+                ),
+            ),
+        )
+    )
+
+
+@warn_group.child()
 #@checks.bot_has_booted()
 #@checks.bot_is_ready()
 @lightbulb.add_checks(lightbulb.guild_only)
@@ -59,11 +91,11 @@ async def on_started(event: hikari.StartedEvent):
 @lightbulb.option(name="points_override", description="Name of the tag to create.", type=int, required=False)
 @lightbulb.option(name="warn_type", description="Name of the tag to create.", type=str)
 @lightbulb.option(name="targets", description="Name of the tag to create.", type=hikari.Member, modifier=lightbulb.commands.base.OptionModifier.GREEDY)
-@lightbulb.command(name="warn", description="Warns one or more members in your server.")
+@lightbulb.command(name="add", description="Warns one or more members in your server.")
 #@checks.module_has_initialised(MODULE_NAME)
 #@checks.author_can_warn()
-@lightbulb.implements(commands.prefix.PrefixCommandGroup, commands.slash.SlashCommandGroup)
-async def warn_group(ctx: lightbulb.context.base.Context) -> None:
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
+async def warn_add_command(ctx: lightbulb.context.base.Context) -> None:
     if not ctx.options.targets:
         return await ctx.respond(f"{ctx.bot.cross} No valid targets were passed.")
 
@@ -139,7 +171,7 @@ async def warn_group(ctx: lightbulb.context.base.Context) -> None:
 #@checks.module_has_initialised(MODULE_NAME)
 @lightbulb.option(name="warn_id", description="Id of the warn issue.", type=str)
 @lightbulb.command(name="remove", aliases=["rm"], description="Removes a warning.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warn_remove_command(ctx: lightbulb.context.base.Context) -> None:
     modified = await ctx.bot.db.execute("DELETE FROM warns WHERE WarnID = ?", ctx.options.warn_id)
 
@@ -156,7 +188,7 @@ async def warn_remove_command(ctx: lightbulb.context.base.Context) -> None:
 #@commands.has_permissions(administrator=True)
 @lightbulb.option(name="target", description="Target for resetting warn.", type=hikari.Member)
 @lightbulb.command(name="reset", description="Resets a member's warnings.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warn_reset_command(ctx: lightbulb.context.base.Context) -> None:
     modified = await ctx.bot.db.execute(
         "DELETE FROM warns WHERE GuildID = ? AND UserID = ?", ctx.get_guild().id, ctx.options.target.id
@@ -174,7 +206,7 @@ async def warn_reset_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.module_has_initialised(MODULE_NAME)
 @lightbulb.option(name="target", description="Target for resetting warn.", type=hikari.Member, required=False)
 @lightbulb.command(name="list", description="Lists a member's warnings.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warn_list_command(ctx: lightbulb.context.base.Context) -> None:
     target = ctx.options.target or ctx.author
 
@@ -217,15 +249,20 @@ async def warn_list_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 #@checks.module_has_initialised(MODULE_NAME)
 @lightbulb.command(name="warntype", description="Manages warn types. Use the command for information on available subcommands.")
-@lightbulb.implements(commands.prefix.PrefixCommandGroup, commands.slash.SlashCommandGroup)
+@lightbulb.implements(commands.prefix.PrefixCommandGroup)
 async def warntype_group(ctx: lightbulb.context.base.Context) -> None:
-    prefix = await ctx.bot.prefix(ctx.get_guild().id)
-    cmds = sorted(ctx.command.subcommands.values(), key=lambda c: c.name)
+    cmds = []
+    prefix = await ctx.bot.prefix(ctx.guild_id)
+    cmds_list = sorted(ctx.command.subcommands.values(), key=lambda c: c.name)
+    for cmd in cmds_list:
+        if cmd not in cmds:
+            cmds.append(cmd)
 
     await ctx.respond(
         embed=ctx.bot.embed.build(
             ctx=ctx,
-            header="Warn",
+            header="WarnType",
+            thumbnail="https://cdn.discordapp.com/attachments/991572493267636275/991586166052749332/mobile.png",
             description="There are a few different commands you can use to manage warn types.",
             fields=(
                 *(
@@ -249,7 +286,7 @@ async def warntype_group(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.option(name="points", description="Strike points for the warntype.", type=int)
 @lightbulb.option(name="warn_type", description="Type of the warn.", type=str)
 @lightbulb.command(name="new", description="Creates a new warn type.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warntype_new_command(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.warn_type):
         return await ctx.respond(f"{ctx.bot.cross} Warn type identifiers can only contain lower case letters.")
@@ -292,7 +329,7 @@ async def warntype_new_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.option(name="new_points", description="New strike points for the warntype.", type=int, required=False)
 @lightbulb.option(name="warn_type", description="Name of the warntype", type=str)
 @lightbulb.command(name="edit", description="Edits an existing warn type.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warntype_edit_command(ctx: lightbulb.context.base.Context) -> None:
     if ctx.options.new_points is None and ctx.options.new_name is None:
         await ctx.respond(f"{ctx.bot.cross} Nothing to modify.")
@@ -381,7 +418,7 @@ async def warntype_edit_command(ctx: lightbulb.context.base.Context) -> None:
 #@checks.module_has_initialised(MODULE_NAME)
 @lightbulb.option(name="warn_type", description="Name of the warntype", type=str)
 @lightbulb.command(name="delete", aliases=["del"], description="Deletes a warn type.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warntype_delete_command(ctx: lightbulb.context.base.Context) -> None:
     if any(c not in ascii_lowercase for c in ctx.options.warn_type):
         return await ctx.respond("{ctx.bot.cross} Warn types can only contain lower case letters.")
@@ -403,7 +440,7 @@ async def warntype_delete_command(ctx: lightbulb.context.base.Context) -> None:
 @lightbulb.add_checks(lightbulb.guild_only)
 #@checks.module_has_initialised(MODULE_NAME)
 @lightbulb.command(name="list", description="Lists the server's warn types.")
-@lightbulb.implements(commands.prefix.PrefixSubCommand, commands.slash.SlashSubCommand)
+@lightbulb.implements(commands.prefix.PrefixSubCommand)
 async def warntype_list_command(ctx: lightbulb.context.base.Context) -> None:
     records = await ctx.bot.db.records("SELECT WarnType, Points FROM warntypes WHERE GuildID = ?", ctx.get_guild().id)
 
