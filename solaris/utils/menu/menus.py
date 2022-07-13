@@ -48,7 +48,7 @@ class Menu:
         else:
             await self.message.remove_all_reactions()
             await self.message.edit(
-                content=f"{self.bot.info} The interactive menu timed out as there was no user interation for {length}.",
+                content=f"{self.bot.info} The interactive menu timed out as there was no user interaction for {length}.",
                 embed=None,
             )
 
